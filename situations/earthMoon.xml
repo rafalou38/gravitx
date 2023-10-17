@@ -1,0 +1,22 @@
+<Situation
+    name="Terre Lune"
+    origin="Earth"
+>
+    <Entity
+        name="Earth"
+        x="0"
+        y="0"
+        mass="5.9722e+24"
+        radius="6371"
+    >
+        <Entity
+            name="Moon"
+            x="-384400"
+            y="0"
+            Vx="1.022"
+            Vy="1.022"
+            mass="7.342e+22"
+            radius="6371"
+        />
+    </Entity>
+</Situation>
