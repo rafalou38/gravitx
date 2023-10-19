@@ -8,18 +8,8 @@ Entity::Entity(std::string label)
 
 Entity::~Entity()
 {
-    std::cout << "entity destroyed;" << std::endl;
 }
 
-void Entity::render()
-{
-    BeginDrawing();
-    DrawCircle(
-        position.x,
-        position.y,
-        10,
-        WHITE);
-}
 
 void Entity::setPosition(float x, float y){
     this->position.x = x;

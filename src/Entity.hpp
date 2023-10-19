@@ -16,7 +16,6 @@ public:
 
     Entity(std::string label);
     ~Entity();
-    void render();
     void setPosition(Vector3 position);
     void setPosition(float x, float y);
     void setVelocity(float x, float y);

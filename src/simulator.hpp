@@ -1,3 +1,5 @@
+#ifndef SIMULATOR_H
+#define SIMULATOR_H
 #include <vector>
 #include <functional>
 #include <string>
@@ -11,10 +13,9 @@ using namespace tinyxml2;
 class Simulator
 {
 private:
+public:
     std::vector<Entity*> entities;
     Entity *origin;
-
-public:
     Simulator();
     ~Simulator();
     void Clear();
@@ -49,17 +50,18 @@ void Simulator::Clear()
 void Simulator::LoadSituation(string name)
 {
     this->Clear();
+
     string originName;
     function<void(XMLElement*, Entity*)> traverse = [&](XMLElement *root, Entity *parentEntity)
     {
         XMLElement *elem = root->FirstChildElement("Entity");
         while (elem != NULL)
         {
-            const char *EntityLabel = elem->Attribute("name");
-            Entity *entity = new Entity(EntityLabel);
+            const char *entityLabel = elem->Attribute("name");
+            Entity *entity = new Entity(entityLabel);
             this->entities.push_back(entity);
 
-            if(EntityLabel == originName) origin = entity;
+            if(entityLabel == originName) origin = entity;
 
             const char *rawX    = elem->Attribute("x");
             const char *rawY    = elem->Attribute("y");
@@ -72,8 +74,6 @@ void Simulator::LoadSituation(string name)
             double Vx    = rawVx  != NULL ? atof(rawVx): 0;
             double Vy    = rawVy  != NULL ? atof(rawVy): 0;
             double mass = rawMass != NULL ? atof(rawMass): 0;
-
-            cout << EntityLabel << rawMass << " " << mass << endl;
 
             if(parentEntity != NULL){
                 x += parentEntity->position.x;
@@ -116,3 +116,5 @@ void Simulator::LoadSituation(string name)
         std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position.x << "\ty:" << entity->position.y << "\tVx:" << entity->velocity.x << "\tVy:" << entity->velocity.y << "\tM:" << entity->mass << endl;
     }
 }
+
+#endif
