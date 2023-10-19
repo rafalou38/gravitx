@@ -10,7 +10,7 @@ export RAYLIB_PATH="$USB_ROOT/raylib/raylib"
 export COMPILER_PATH="$USB_ROOT/raylib/w64devkit/bin"
 export PATH=$COMPILER_PATH:$PATH
 export CC=gcc
-export CFLAGS="$RAYLIB_PATH/src/raylib.rc.data -g -s -static -Os -Wall -I$RAYLIB_PATH/src -Iexternal -DPLATFORM_DESKTOP"
+export CFLAGS="$RAYLIB_PATH/src/raylib.rc.data -g -static -Os -Wall -I$RAYLIB_PATH/src -Iexternal -DPLATFORM_DESKTOP"
 export LDFLAGS="-lraylib -lopengl32 -lgdi32 -lwinmm"
 
 # Change to the current directory

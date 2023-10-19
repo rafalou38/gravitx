@@ -35,6 +35,12 @@ int main(void)
             height = GetRenderHeight();
             renderer.setWindowsSize(width, height);
         }
+        for (size_t i = 0; i < 1000; i++)
+        {
+            sim.update();
+        }
+        
+        
         renderer.render(&sim);
     }
 

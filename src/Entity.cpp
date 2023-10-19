@@ -4,6 +4,9 @@
 Entity::Entity(std::string label)
 {
     this->label = label;
+    this->position = {0, 0, 0};
+    this->velocity = {0, 0, 0};
+    this->acceleration = {0, 0, 0};
 }
 
 Entity::~Entity()

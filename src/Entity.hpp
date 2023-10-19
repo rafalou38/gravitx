@@ -1,7 +1,9 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-#include "raylib.h"
 #include <string>
+
+#include "raylib.h"
+#include "utils.hpp"
 
 class Entity
 {
@@ -9,9 +11,10 @@ private:
 public:
     std::string label;
     double mass;
-    Vector3 position;
+    Vector3l position;
 
-    Vector3 velocity;
+    Vector3l velocity;
+    Vector3l acceleration;
     Entity *origin;
 
     Entity(std::string label);

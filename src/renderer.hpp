@@ -35,19 +35,21 @@ Renderer::~Renderer()
 void Renderer::render(Simulator *sim)
 {
     Vector3 center = {
-        sim->origin->position.x,
-        sim->origin->position.y,
+        (float)sim->origin->position.x,
+        (float)sim->origin->position.y,
         0
     };
     BeginDrawing();
     for (Entity *entity : sim->entities)
     {
+        // cout << " " << entity->label << " " << entity->position.x << " " << entity->position.y;
         DrawCircle(
             (center.x - entity->position.x) * scale + windowsSize.x / 2,
             (center.y - entity->position.y) * scale + windowsSize.y / 2,
             10,
             WHITE);
     }
+    // cout << endl;
     EndDrawing();
 }
 
