@@ -7,16 +7,17 @@
         x="0"
         y="0"
         mass="5.9722e+24"
-        radius="6371"
+        radius="6378.1"
     >
         <Entity
             name="Moon"
-            x="-384400"
-            y="0"
-            Vx="0"
-            Vy="1.022"
+            x="0"
+            y="-363300"
+            Vx="0.970e+3"
+            Vy="0"
             mass="7.342e+22"
-            radius="6371"
+            radius="1738.1"
         />
+        <!-- Vx = 1.022e+3 -->
     </Entity>
 </Situation>

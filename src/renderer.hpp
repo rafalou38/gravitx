@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "Entity.hpp"
 #include "simulator.hpp"
 
@@ -12,7 +13,7 @@ private:
     Vector2 windowsSize = Vector2();
 
 public:
-    float scale = 1.0 / 1000.0f;
+    float scale = 1.0 / 2000.0f;
 
     Renderer(/* args */);
     ~Renderer();
@@ -21,6 +22,7 @@ public:
     void setWindowsSize(float x, float y) { this->windowsSize = {x, y}; };
 
     void render(Simulator *sim);
+
     void mainLoop();
 };
 
@@ -34,22 +36,43 @@ Renderer::~Renderer()
 
 void Renderer::render(Simulator *sim)
 {
-    Vector3 center = {
-        (float)sim->origin->position.x,
-        (float)sim->origin->position.y,
-        0
-    };
+    Vector3l center = {
+        sim->origin->position.x,
+        // 0,
+        sim->origin->position.y,
+        // 0,
+        0};
     BeginDrawing();
+    ClearBackground(BLACK);
     for (Entity *entity : sim->entities)
     {
-        // cout << " " << entity->label << " " << entity->position.x << " " << entity->position.y;
         DrawCircle(
-            (center.x - entity->position.x) * scale + windowsSize.x / 2,
-            (center.y - entity->position.y) * scale + windowsSize.y / 2,
-            10,
+            round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
+            round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
+            entity->radius * scale,
             WHITE);
+
+        auto points = sim->lines.find((size_t)entity)->second;
+        if (points->size() >= 2)
+        {
+            for (size_t i = 0; i < points->size() - 1; i += 1)
+            {
+                DrawLine(
+                    round((center.x - points->at(i).x) * -scale + windowsSize.x / 2),
+                    round((center.y - points->at(i).y) * -scale + windowsSize.y / 2),
+                    round((center.x - points->at(i + 1).x) * -scale + windowsSize.x / 2),
+                    round((center.y - points->at(i + 1).y) * -scale + windowsSize.y / 2),
+                    WHITE);
+            }
+            DrawLine(
+                 round((center.x - points->back().x) * -scale + windowsSize.x / 2),
+                 round((center.y - points->back().y) * -scale + windowsSize.y / 2),
+                 round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
+                 round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
+                 WHITE
+            );
+        }
     }
-    // cout << endl;
     EndDrawing();
 }
 

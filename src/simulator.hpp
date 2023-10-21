@@ -6,8 +6,10 @@
 #include <iostream>
 #include "../lib/tinyxml2.h"
 #include "Entity.hpp"
+#include "consts.hpp"
 #include "utils.hpp"
 #include <cmath>
+#include <unordered_map>
 
 using namespace std;
 using namespace tinyxml2;
@@ -17,53 +19,98 @@ class Simulator
 private:
 public:
     // Seconds
-    float dt = 10.0f;
+    float dt = 5.0f;
     std::vector<Entity *> entities;
+    unordered_map<size_t, vector<Vector2> *> lines;
     Entity *origin;
 
     Simulator();
     ~Simulator();
     void Clear();
     void LoadSituation(string name);
+    void computeLines();
     void update();
 };
 
 Simulator::Simulator()
 {
+    lines = unordered_map<size_t, vector<Vector2> *>();
 }
 Simulator::~Simulator()
 {
     this->Clear();
 }
 
+void Simulator::computeLines()
+{
+    for (Entity *entity : this->entities)
+    {
+        const auto r = lines.find((size_t)entity);
+        vector<Vector2> *points;
+        if (r == lines.end())
+        {
+            points = new vector<Vector2>();
+            lines[(size_t)entity] = points;
+        }
+        else
+        {
+            points = r->second;
+        }
+        Vector2 *last = new Vector2{0,0};
+
+        if (points->size() > 0)
+        {
+            free(last);
+            last = &points->back();
+        }
+
+        if(points->size() > MAX_LINES)
+        {
+            points->erase(points->begin());
+        }
+        
+        float distance = pow(abs(entity->position.x - last->x), 2) + pow(abs(entity->position.y - last->y), 2);
+        float speed = pow(entity->velocity.x, 2) + pow(entity->velocity.y, 2);
+
+        if (distance / (speed / 10) >= LINE_DISTANCE)
+        {
+            points->push_back(Vector2{
+                (float)entity->position.x,
+                (float)entity->position.y});
+        }
+    }
+}
+
 void Simulator::update()
 {
+    computeLines();
     for (size_t i = 0; i < entities.size(); i++)
     {
-        Entity* a = entities[i];
+        Entity *a = entities[i];
         for (size_t j = i + 1; j < entities.size(); j++)
         {
-            if(i == j) continue;
+            if (i == j)
+                continue;
 
-            Entity* b = entities[j];
+            Entity *b = entities[j];
             Vector3l AB = {
-                b->position.x - a->position.x,
-                b->position.y - a->position.y,
-                b->position.z - a->position.z
-            };
+                (b->position.x - a->position.x) * pow(10, 3),
+                (b->position.y - a->position.y) * pow(10, 3),
+                (b->position.z - a->position.z) * pow(10, 3)};
 
-            long double dist2 = AB.x * AB.x + AB.y * AB.y + AB.z * AB.z;
+            long double dist2 = (AB.x * AB.x + AB.y * AB.y + AB.z * AB.z); // m^2
             long double dist = sqrtl(dist2);
 
-            long double k = G /* a->mass * b->mass */ / dist2;
+            long double k = G /* a->mass * b->mass */ / dist2; // m / kg / s^2
 
             AB.x /= dist;
             AB.y /= dist;
             AB.z /= dist;
 
-            a->acceleration.x += AB.x *  k * b->mass;
-            a->acceleration.y += AB.y *  k * b->mass;
-            a->acceleration.z += AB.z *  k * b->mass;
+            // m/s^2
+            a->acceleration.x += AB.x * k * b->mass;
+            a->acceleration.y += AB.y * k * b->mass;
+            a->acceleration.z += AB.z * k * b->mass;
 
             b->acceleration.x += AB.x * -k * a->mass;
             b->acceleration.y += AB.y * -k * a->mass;
@@ -71,17 +118,19 @@ void Simulator::update()
         }
     }
 
-
     for (auto entity : entities)
     {
-        // cout << entity->label << " " << entity->velocity.x << " " << entity->velocity.y << " " << entity->position.x << " " << entity->position.y << endl;
         entity->velocity.x += entity->acceleration.x * dt;
         entity->velocity.y += entity->acceleration.y * dt;
         entity->velocity.z += entity->acceleration.z * dt;
 
-        entity->position.x += entity->velocity.x * dt;
-        entity->position.y += entity->velocity.y * dt;
-        entity->position.z += entity->velocity.z * dt;
+        entity->position.x += entity->velocity.x * dt * pow(10, -3); // m to km
+        entity->position.y += entity->velocity.y * dt * pow(10, -3);
+        entity->position.z += entity->velocity.z * dt * pow(10, -3);
+
+        entity->acceleration.x = 0;
+        entity->acceleration.y = 0;
+        entity->acceleration.z = 0;
     }
 }
 
@@ -123,12 +172,14 @@ void Simulator::LoadSituation(string name)
             const char *rawVx = elem->Attribute("Vx");
             const char *rawVy = elem->Attribute("Vy");
             const char *rawMass = elem->Attribute("mass");
+            const char *rawRadius = elem->Attribute("radius");
 
             double x = rawX != NULL ? atof(rawX) : 0;
             double y = rawY != NULL ? atof(rawY) : 0;
             double Vx = rawVx != NULL ? atof(rawVx) : 0;
             double Vy = rawVy != NULL ? atof(rawVy) : 0;
             double mass = rawMass != NULL ? atof(rawMass) : 0;
+            double radius = rawRadius != NULL ? atof(rawRadius) : 0;
 
             if (parentEntity != NULL)
             {
@@ -138,6 +189,7 @@ void Simulator::LoadSituation(string name)
 
             entity->setPosition(x, y);
             entity->setMass(mass);
+            entity->setRadius(radius);
             entity->setVelocity(Vx, Vy);
 
             XMLElement *child = elem->FirstChildElement("Entity");

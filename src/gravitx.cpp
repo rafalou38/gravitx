@@ -24,6 +24,10 @@ int main(void)
     SetTraceLogLevel(LOG_WARNING);
     InitWindow(width, height, "GravitX");
     renderer.setWindowsSize(width, height);
+    // SetWindowPosition(800,800);
+    // Vector2 v = GetWindowPosition();
+    // cout << v.x << " " << v.y << endl;
+    SetWindowPosition(1520, 2500);
     SetTargetFPS(60);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
@@ -38,6 +42,15 @@ int main(void)
         for (size_t i = 0; i < 1000; i++)
         {
             sim.update();
+        }
+
+
+        float scroll = GetMouseWheelMove();
+        if(scroll != 0){
+            if(scroll > 0)
+                renderer.setScale(renderer.scale * 1.1);
+            else
+                renderer.setScale(renderer.scale * 0.9);
         }
         
         
