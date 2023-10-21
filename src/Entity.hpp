@@ -16,6 +16,7 @@ public:
     double mass;
     // In km
     float radius;
+    Color color;
 
     // In km
     Vector3l position;
@@ -32,6 +33,7 @@ public:
     void setVelocity(float x, float y);
     void setMass(double mass);
     void setRadius(float radius);
+    void setColor(char *rawColor);
 };
 
 Entity::Entity(std::string label)
@@ -46,7 +48,12 @@ Entity::~Entity()
 {
 }
 
-
+void Entity::setColor(char *rawColor){
+    rawColor += 1;
+    uint color;
+    sscanf(rawColor, "%x", &color);
+    this->color = GetColor(color);
+}
 void Entity::setPosition(float x, float y){
     this->position.x = x;
     this->position.y = y;

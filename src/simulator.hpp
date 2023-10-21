@@ -136,6 +136,7 @@ void Simulator::update()
 
 void Simulator::Clear()
 {
+    // TODO: clear lines
     for (Entity *entity : entities)
     {
         delete entity;
@@ -173,6 +174,7 @@ void Simulator::LoadSituation(string name)
             const char *rawVy = elem->Attribute("Vy");
             const char *rawMass = elem->Attribute("mass");
             const char *rawRadius = elem->Attribute("radius");
+            char *rawColor = (char *)elem->Attribute("color");
 
             double x = rawX != NULL ? atof(rawX) : 0;
             double y = rawY != NULL ? atof(rawY) : 0;
@@ -180,6 +182,10 @@ void Simulator::LoadSituation(string name)
             double Vy = rawVy != NULL ? atof(rawVy) : 0;
             double mass = rawMass != NULL ? atof(rawMass) : 0;
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
+            if(rawColor == NULL) rawColor = "#ffffff";
+            strcat(rawColor, "ff");
+            
+            
 
             if (parentEntity != NULL)
             {
@@ -191,6 +197,7 @@ void Simulator::LoadSituation(string name)
             entity->setMass(mass);
             entity->setRadius(radius);
             entity->setVelocity(Vx, Vy);
+            entity->setColor(rawColor);
 
             XMLElement *child = elem->FirstChildElement("Entity");
             if (child != NULL)

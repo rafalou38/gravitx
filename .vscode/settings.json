@@ -8,7 +8,9 @@
 		"*.uss": "css",
 		"*.uxml": "xml",
 		"cmath": "cpp",
-		"unordered_map": "cpp"
+		"unordered_map": "cpp",
+		"iosfwd": "cpp",
+		"string": "cpp"
 	}
 	// "files.exclude": {
 	// 	"**/.git": true,

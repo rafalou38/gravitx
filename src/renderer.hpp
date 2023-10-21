@@ -50,26 +50,29 @@ void Renderer::render(Simulator *sim)
             round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
             round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
             entity->radius * scale,
-            WHITE);
+            entity->color);
 
         auto points = sim->lines.find((size_t)entity)->second;
         if (points->size() >= 2)
         {
             for (size_t i = 0; i < points->size() - 1; i += 1)
             {
+                Color color = ColorAlpha(entity->color, 0.6 * i / (points->size() - 1));
                 DrawLine(
                     round((center.x - points->at(i).x) * -scale + windowsSize.x / 2),
                     round((center.y - points->at(i).y) * -scale + windowsSize.y / 2),
                     round((center.x - points->at(i + 1).x) * -scale + windowsSize.x / 2),
                     round((center.y - points->at(i + 1).y) * -scale + windowsSize.y / 2),
-                    WHITE);
+                    color
+                );
             }
+            Color color = ColorAlpha(entity->color, 0.6);
             DrawLine(
                  round((center.x - points->back().x) * -scale + windowsSize.x / 2),
                  round((center.y - points->back().y) * -scale + windowsSize.y / 2),
                  round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
                  round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
-                 WHITE
+                 color
             );
         }
     }
