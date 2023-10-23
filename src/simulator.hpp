@@ -18,8 +18,11 @@ class Simulator
 {
 private:
 public:
+    float maxLines = MAX_LINES;
+    float lineDistance = LINE_DISTANCE;
     // Seconds
     float dt = 5.0f;
+    long double time = 0;
     std::vector<Entity *> entities;
     unordered_map<size_t, vector<Vector2> *> lines;
     Entity *origin;
@@ -72,14 +75,14 @@ void Simulator::computeLines()
         if (points->size() > 0)
             last = points->back();
 
-        if(points->size() > MAX_LINES)
+        if(points->size() > maxLines)
             points->erase(points->begin());
         
         
         float distance = pow(abs(entity->position.x - last.x), 2) + pow(abs(entity->position.y - last.y), 2);
         float speed = pow(entity->velocity.x, 2) + pow(entity->velocity.y, 2);
 
-        if (distance / (speed / 10) >= LINE_DISTANCE)
+        if (distance / (speed / 10) >= lineDistance)
         {
             points->push_back(Vector2{
                 (float)entity->position.x,
@@ -139,6 +142,8 @@ void Simulator::update()
         entity->acceleration.y = 0;
         entity->acceleration.z = 0;
     }
+
+    this->time += dt / 60;
 }
 
 void Simulator::Clear()

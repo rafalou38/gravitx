@@ -7,6 +7,9 @@
 #include "renderer.hpp"
 #include "UI.hpp"
 
+
+
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -14,7 +17,8 @@ int main(void)
 {
     Renderer renderer = Renderer();
     Simulator sim = Simulator();
-    UI ui = UI();
+    UI ui = UI(&sim);
+    
     sim.LoadSituation("earthMoon.xml");
 
     int width = 800;
@@ -54,7 +58,7 @@ int main(void)
         }
         if(GetKeyPressed() == KEY_O) sim.changeOrigin();
 
-        ui.updateUI(sim);
+        ui.updateUI(&sim, &renderer);
 
         BeginDrawing();
             renderer.render(&sim);

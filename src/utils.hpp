@@ -7,4 +7,22 @@ typedef struct Vector3l {
     long double z;                // Vector z component
 } Vector3l;
 
+
+// (Cumulative)
+typedef struct DetailedTime {
+    unsigned int years;
+    unsigned int days;
+    unsigned int hours;
+    unsigned int minutes;
+} DetailedTime;
+
+DetailedTime minutesToDetailedTime(unsigned int minutes){
+    DetailedTime detailedTime;
+    detailedTime.years = minutes / 60 / 24 / 365;
+    detailedTime.days = minutes / 60 / 24 % 365;
+    detailedTime.hours = minutes / 60 % 24;
+    detailedTime.minutes = minutes % 60;
+    return detailedTime;
+}
+
 #endif

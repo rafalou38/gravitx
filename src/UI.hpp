@@ -21,6 +21,7 @@ private:
     Vector2 bufferSize = {800, 450};
     float sliderValue = 0.5f;
     Simulator *sim;
+    Renderer *renderer;
 
     void updateWindowRect()
     {
@@ -54,32 +55,55 @@ private:
         }
         else
         {
-            windowRect.height = 200;
-            windowRect.width = 200;
+            // Reset by renderUI
+            // windowRect.height = 200;
+            // windowRect.width = 200;
         }
     }
 
 public:
-    UI()
+    UI(Simulator *sim)
     {
+        this->sim = sim;
+        sim->dt = exp(sliderValue) - 0.99;
     }
     void setWindowsSize(float x, float y) { this->bufferSize = {x, y}; };
     void renderUI(){
         windowBtn = GuiWindowBox(windowRect, "#15#");
         if(windowCollapsed) return;
 
-        float y = windowRect.x + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + MARGIN;
-        float x = windowRect.y + MARGIN * 2 + MeasureText("Dt", TEXT_SIZE);
+        float fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
+        #define SLIDER_HEIGHT  15
+        float y = windowRect.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + MARGIN;
+        float x = windowRect.x + MARGIN * 2 + MeasureText("Dt", fontSize/2);
         float prev = sliderValue;
-        GuiSlider({x, y, 100, 15}, "Dt", TextFormat("%0.1f", sim->dt), &sliderValue, 0.1f, 10.0f);
+        GuiSlider({x, y, 200 - ((x + 8 * MARGIN) - windowRect.x), SLIDER_HEIGHT}, "Dt", TextFormat("%0.1f", sim->dt), &sliderValue, 0.1f, 10.0f);
         if (prev != sliderValue)
         {
             sim->dt = exp(sliderValue) - 0.99;
         }
+        x = windowRect.x + MARGIN;
+
+        y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail size: %0.0f", sim->maxLines), x, y, fontSize, BLACK);
+        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->maxLines, 10.0f, 50000.0f);
+
+        y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail distance: %0.0f", sim->lineDistance), x, y, fontSize, BLACK);
+        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->lineDistance, 1000.0f, 100000.0f);
+
+        y += SLIDER_HEIGHT + MARGIN * 2;
+        DrawText(TextFormat("Scale: %0.0f Km = 1px", 1/renderer->scale), x, y, fontSize, BLACK);
+        y+= fontSize + MARGIN;
+
+        auto d = minutesToDetailedTime(sim->time);
+        DrawText(TextFormat("Time: %dy %dd %dh %dm",d.years, d.days, d.hours, d.minutes), x, y, fontSize, BLACK);
+        y+= fontSize + MARGIN;
+
+        windowRect.height = y - windowRect.y;
     }
-    void updateUI(Simulator &sim)
+    void updateUI(Simulator *sim, Renderer *renderer)
     {
-        this->sim = &sim;
+        this->sim = sim;
+        this->renderer = renderer;
         updateWindowRect();
     }
 };
