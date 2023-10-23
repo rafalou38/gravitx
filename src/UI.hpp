@@ -87,8 +87,8 @@ public:
         y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail size: %0.0f", sim->maxLines), x, y, fontSize, BLACK);
         y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->maxLines, 10.0f, 50000.0f);
 
-        y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail distance: %0.0f", sim->lineDistance), x, y, fontSize, BLACK);
-        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->lineDistance, 1000.0f, 100000.0f);
+        // y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail distance: %0.0f", sim->lineDistance), x, y, fontSize, BLACK);
+        // y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->lineDistance, 1000.0f, 100000.0f);
 
         y += SLIDER_HEIGHT + MARGIN * 2;
         DrawText(TextFormat("Scale: %0.0f Km = 1px", 1/renderer->scale), x, y, fontSize, BLACK);

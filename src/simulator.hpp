@@ -25,6 +25,7 @@ public:
     long double time = 0;
     std::vector<Entity *> entities;
     unordered_map<size_t, vector<Vector2> *> lines;
+    unordered_map<size_t, Vector2> previousVelocity;
     Entity *origin;
 
     Simulator();
@@ -39,6 +40,7 @@ public:
 Simulator::Simulator()
 {
     lines = unordered_map<size_t, vector<Vector2> *>();
+    previousVelocity = unordered_map<size_t, Vector2>();
 }
 Simulator::~Simulator()
 {
@@ -72,22 +74,32 @@ void Simulator::computeLines()
         {
             points = r->second;
         }
-        Vector2 last = {0, 0};
+        Vector2 lastPosition = {0, 0};
+        Vector2 lastVelocity = {0, 1};
 
         if (points->size() > 0)
-            last = points->back();
+        {
+            lastPosition = points->back();
+            lastVelocity = previousVelocity[(size_t)entity];
+        }
 
-        if (points->size() > maxLines)
+        while (points->size() > maxLines)
             points->erase(points->begin());
 
-        float distance = pow(abs(entity->position.x - last.x), 2) + pow(abs(entity->position.y - last.y), 2);
-        float speed = pow(entity->velocity.x, 2) + pow(entity->velocity.y, 2);
 
-        if (distance / (speed / 10) >= lineDistance)
+        float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y;
+        float det = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
+        float angle = atan2(det, dot);
+
+        if (abs(angle) >= LINE_ANGLE || max(abs(entity->position.x - lastPosition.x), abs(entity->position.y - lastPosition.y)) > lineDistance)
         {
             points->push_back(Vector2{
                 (float)entity->position.x,
                 (float)entity->position.y});
+            previousVelocity[(size_t)entity] = Vector2{
+                (float)entity->velocity.x,
+                (float)entity->velocity.y
+            };
         }
     }
 }
@@ -197,22 +209,22 @@ void Simulator::LoadSituation(string name)
             double mass = rawMass != NULL ? atof(rawMass) : 0;
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
 
-            #ifdef TEXTURES
-                if (textureFile != NULL)
+#ifdef TEXTURES
+            if (textureFile != NULL)
+            {
+                string filePath = "situations/textures/" + string(textureFile);
+                if (!FileExists(filePath.c_str()))
                 {
-                    string filePath = "situations/textures/" + string(textureFile);
-                    if (!FileExists(filePath.c_str()))
-                    {
-                        cerr << "Texture not found: " << filePath << endl;
-                        throw runtime_error("Texture not found");
-                    }
-                    entity->setTexture(filePath);
+                    cerr << "Texture not found: " << filePath << endl;
+                    throw runtime_error("Texture not found");
                 }
-            #endif
-            
+                entity->setTexture(filePath);
+            }
+#endif
+
             if (rawColor == NULL)
                 rawColor = strdup("ffffff");
-            strcat(rawColor, "ff");            
+            strcat(rawColor, "ff");
             if (parentEntity != NULL)
             {
                 x += parentEntity->position.x;
