@@ -25,6 +25,7 @@ int main(void)
     int height = 450;
 
     SetTraceLogLevel(LOG_WARNING);
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
     renderer.setWindowsSize(width, height);
     // SetWindowPosition(800,800);

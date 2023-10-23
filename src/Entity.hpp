@@ -2,6 +2,7 @@
 #define ENTITY_H
 #include <string>
 #include <iostream>
+#include <assert.h>
 
 #include "raylib.h"
 #include "utils.hpp"
@@ -9,7 +10,10 @@
 class Entity
 {
 private:
+    Texture2D texture;
+    bool textureLoaded = false;
 public:
+    std::string texturePath = "";
     std::string label;
 
     // In kg
@@ -34,6 +38,8 @@ public:
     void setMass(double mass);
     void setRadius(float radius);
     void setColor(char *rawColor);
+    void setTexture(std::string filePath);
+    Texture2D getTexture();
 };
 
 Entity::Entity(std::string label)
@@ -54,6 +60,20 @@ void Entity::setColor(char *rawColor){
     sscanf(rawColor, "%x", &colorInt);
     this->color = GetColor(colorInt);
 }
+void Entity::setTexture(std::string filePath){
+    this->texturePath = filePath;
+    this->textureLoaded = false;
+}
+
+Texture2D Entity::getTexture(){
+    assert(this->texturePath != "");
+    if(!textureLoaded){
+        this->texture = LoadTexture(texturePath.c_str());
+    }
+    return this->texture;
+}
+
+
 void Entity::setPosition(float x, float y){
     this->position.x = x;
     this->position.y = y;

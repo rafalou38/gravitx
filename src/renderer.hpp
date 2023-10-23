@@ -42,15 +42,30 @@ void Renderer::render(Simulator *sim)
         sim->origin->position.y,
         // 0,
         0};
-    
+
     ClearBackground(BLACK);
     for (Entity *entity : sim->entities)
     {
-        DrawCircle(
-            round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
-            round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
-            entity->radius * scale,
-            entity->color);
+        if (entity->texturePath == "")
+        {
+            DrawCircle(
+                round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
+                round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
+                entity->radius * scale,
+                entity->color);
+        }
+        else
+        {
+            auto texture = entity->getTexture();
+            float textureScale = (entity->radius * scale * 2.0f) / texture.width;
+            DrawTextureEx(
+                texture,
+                {
+                    (float)round((center.x - entity->position.x) * -scale + windowsSize.x / 2) - entity->radius * scale,
+                    (float)round((center.y - entity->position.y) * -scale + windowsSize.y / 2) - entity->radius * scale,
+                },
+                0, textureScale, WHITE);
+        }
 
         auto points = sim->lines.find((size_t)entity)->second;
         if (points->size() >= 2)
@@ -63,17 +78,15 @@ void Renderer::render(Simulator *sim)
                     round((center.y - points->at(i).y) * -scale + windowsSize.y / 2),
                     round((center.x - points->at(i + 1).x) * -scale + windowsSize.x / 2),
                     round((center.y - points->at(i + 1).y) * -scale + windowsSize.y / 2),
-                    color
-                );
+                    color);
             }
             Color color = ColorAlpha(entity->color, 0.6);
             DrawLine(
-                 round((center.x - points->back().x) * -scale + windowsSize.x / 2),
-                 round((center.y - points->back().y) * -scale + windowsSize.y / 2),
-                 round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
-                 round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
-                 color
-            );
+                round((center.x - points->back().x) * -scale + windowsSize.x / 2),
+                round((center.y - points->back().y) * -scale + windowsSize.y / 2),
+                round((center.x - entity->position.x) * -scale + windowsSize.x / 2),
+                round((center.y - entity->position.y) * -scale + windowsSize.y / 2),
+                color);
         }
     }
 }

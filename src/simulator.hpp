@@ -45,11 +45,13 @@ Simulator::~Simulator()
     this->Clear();
 }
 
-void Simulator::changeOrigin(){
+void Simulator::changeOrigin()
+{
     for (size_t i = 0; i < entities.size(); i++)
     {
-        if(entities[i] == origin){
-            origin = entities[(i+1) % entities.size()];
+        if (entities[i] == origin)
+        {
+            origin = entities[(i + 1) % entities.size()];
             break;
         }
     }
@@ -75,10 +77,9 @@ void Simulator::computeLines()
         if (points->size() > 0)
             last = points->back();
 
-        if(points->size() > maxLines)
+        if (points->size() > maxLines)
             points->erase(points->begin());
-        
-        
+
         float distance = pow(abs(entity->position.x - last.x), 2) + pow(abs(entity->position.y - last.y), 2);
         float speed = pow(entity->velocity.x, 2) + pow(entity->velocity.y, 2);
 
@@ -186,6 +187,7 @@ void Simulator::LoadSituation(string name)
             const char *rawVy = elem->Attribute("Vy");
             const char *rawMass = elem->Attribute("mass");
             const char *rawRadius = elem->Attribute("radius");
+            const char *textureFile = elem->Attribute("texture");
             char *rawColor = (char *)elem->Attribute("color");
 
             double x = rawX != NULL ? atof(rawX) : 0;
@@ -194,11 +196,23 @@ void Simulator::LoadSituation(string name)
             double Vy = rawVy != NULL ? atof(rawVy) : 0;
             double mass = rawMass != NULL ? atof(rawMass) : 0;
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
-            if(rawColor == NULL) rawColor = strdup("#ffffff");
-            strcat(rawColor, "ff");
-            
-            
 
+            #ifdef TEXTURES
+                if (textureFile != NULL)
+                {
+                    string filePath = "situations/textures/" + string(textureFile);
+                    if (!FileExists(filePath.c_str()))
+                    {
+                        cerr << "Texture not found: " << filePath << endl;
+                        throw runtime_error("Texture not found");
+                    }
+                    entity->setTexture(filePath);
+                }
+            #endif
+            
+            if (rawColor == NULL)
+                rawColor = strdup("ffffff");
+            strcat(rawColor, "ff");            
             if (parentEntity != NULL)
             {
                 x += parentEntity->position.x;
