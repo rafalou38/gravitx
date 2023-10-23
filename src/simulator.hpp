@@ -28,6 +28,7 @@ public:
     ~Simulator();
     void Clear();
     void LoadSituation(string name);
+    void changeOrigin();
     void computeLines();
     void update();
 };
@@ -39,6 +40,16 @@ Simulator::Simulator()
 Simulator::~Simulator()
 {
     this->Clear();
+}
+
+void Simulator::changeOrigin(){
+    for (size_t i = 0; i < entities.size(); i++)
+    {
+        if(entities[i] == origin){
+            origin = entities[(i+1) % entities.size()];
+            break;
+        }
+    }
 }
 
 void Simulator::computeLines()
@@ -56,20 +67,16 @@ void Simulator::computeLines()
         {
             points = r->second;
         }
-        Vector2 *last = new Vector2{0,0};
+        Vector2 last = {0, 0};
 
         if (points->size() > 0)
-        {
-            free(last);
-            last = &points->back();
-        }
+            last = points->back();
 
         if(points->size() > MAX_LINES)
-        {
             points->erase(points->begin());
-        }
         
-        float distance = pow(abs(entity->position.x - last->x), 2) + pow(abs(entity->position.y - last->y), 2);
+        
+        float distance = pow(abs(entity->position.x - last.x), 2) + pow(abs(entity->position.y - last.y), 2);
         float speed = pow(entity->velocity.x, 2) + pow(entity->velocity.y, 2);
 
         if (distance / (speed / 10) >= LINE_DISTANCE)
@@ -182,7 +189,7 @@ void Simulator::LoadSituation(string name)
             double Vy = rawVy != NULL ? atof(rawVy) : 0;
             double mass = rawMass != NULL ? atof(rawMass) : 0;
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
-            if(rawColor == NULL) rawColor = "#ffffff";
+            if(rawColor == NULL) rawColor = strdup("#ffffff");
             strcat(rawColor, "ff");
             
             

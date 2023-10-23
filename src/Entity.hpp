@@ -50,9 +50,9 @@ Entity::~Entity()
 
 void Entity::setColor(char *rawColor){
     rawColor += 1;
-    uint color;
-    sscanf(rawColor, "%x", &color);
-    this->color = GetColor(color);
+    unsigned int colorInt;
+    sscanf(rawColor, "%x", &colorInt);
+    this->color = GetColor(colorInt);
 }
 void Entity::setPosition(float x, float y){
     this->position.x = x;

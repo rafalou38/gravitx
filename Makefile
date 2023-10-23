@@ -2,10 +2,10 @@
 BUILD_MODE         ?= DEBUG
 PLATFORM           ?= PLATFORM_DESKTOP
 
-RAYLIB_PATH        ?= F:\raylib\raylib
-COMPILER_PATH      ?= F:/raylib/w64devkit/bin
+RAYLIB_PATH        ?= ../../raylib/raylib
+COMPILER_PATH      ?= ../../raylib/w64devkit/bin
 
-CC = F:/raylib/w64devkit/bin/g++
+CC = ../../raylib/w64devkit/bin/g++
 
 
 CFLAGS += -Wall -std=c++17 -D_DEFAULT_SOURCE -Wno-missing-braces $(RAYLIB_PATH)/src/raylib.rc.data

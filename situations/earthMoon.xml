@@ -1,6 +1,6 @@
 <Situation
     name="Terre Lune"
-    origin="Moon"
+    origin="Earth"
 >
     <Entity
         name="Earth"

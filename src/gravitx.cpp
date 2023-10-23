@@ -5,9 +5,7 @@
 #include "entity.hpp"
 #include "simulator.hpp"
 #include "renderer.hpp"
-
-
-
+#include "UI.hpp"
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -16,6 +14,7 @@ int main(void)
 {
     Renderer renderer = Renderer();
     Simulator sim = Simulator();
+    UI ui = UI();
     sim.LoadSituation("earthMoon.xml");
 
     int width = 800;
@@ -27,7 +26,7 @@ int main(void)
     // SetWindowPosition(800,800);
     // Vector2 v = GetWindowPosition();
     // cout << v.x << " " << v.y << endl;
-    SetWindowPosition(1520, 2500);
+    // SetWindowPosition(1520, 2500);
     SetTargetFPS(60);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
@@ -38,6 +37,7 @@ int main(void)
             width = GetRenderWidth();
             height = GetRenderHeight();
             renderer.setWindowsSize(width, height);
+            ui.setWindowsSize(width, height);
         }
         for (size_t i = 0; i < 1000; i++)
         {
@@ -52,9 +52,14 @@ int main(void)
             else
                 renderer.setScale(renderer.scale * 0.9);
         }
-        
-        
-        renderer.render(&sim);
+        if(GetKeyPressed() == KEY_O) sim.changeOrigin();
+
+        ui.updateUI(sim);
+
+        BeginDrawing();
+            renderer.render(&sim);
+            ui.renderUI();
+        EndDrawing();
     }
 
     CloseWindow();

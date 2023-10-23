@@ -42,7 +42,7 @@ void Renderer::render(Simulator *sim)
         sim->origin->position.y,
         // 0,
         0};
-    BeginDrawing();
+    
     ClearBackground(BLACK);
     for (Entity *entity : sim->entities)
     {
@@ -76,7 +76,6 @@ void Renderer::render(Simulator *sim)
             );
         }
     }
-    EndDrawing();
 }
 
 #endif
