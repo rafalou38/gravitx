@@ -91,7 +91,7 @@ void Simulator::computeLines()
         float det = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
         float angle = atan2(det, dot);
 
-        if (abs(angle) >= LINE_ANGLE || max(abs(entity->position.x - lastPosition.x), abs(entity->position.y - lastPosition.y)) > lineDistance)
+        if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
         {
             points->push_back(Vector2{
                 (float)entity->position.x,
