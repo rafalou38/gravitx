@@ -10,13 +10,34 @@
 #include "utils.hpp"
 #include <cmath>
 #include <unordered_map>
+#include <thread>
+#include <barrier>
+#include <unistd.h>
 
 using namespace std;
 using namespace tinyxml2;
 
+struct Pair
+{
+    Entity *a;
+    Entity *b;
+};
+
 class Simulator
 {
 private:
+    unordered_map<size_t, Vector2> previousVelocity;
+
+    std::vector<Pair> pairs;
+    size_t executorCount = 0;
+    std::atomic<bool> executorShouldStop = false;
+    std::thread threads[MAX_THREADS + 1];
+    std::unique_ptr<std::barrier<>> sync_point1;
+    // std::unique_ptr<std::barrier<>> sync_point2;
+
+    void executor(size_t executor_id, size_t pairsRangeStart, size_t pairsRangeEnd, size_t entityRangeStart, size_t entityRangeEnd);
+    void computeInteraction(Entity *a, Entity *b);
+    void computeLines(Entity *entity);
 public:
     float maxLines = MAX_LINES;
     float lineDistance = LINE_DISTANCE;
@@ -25,16 +46,16 @@ public:
     long double time = 0;
     std::vector<Entity *> entities;
     unordered_map<size_t, vector<Vector2> *> lines;
-    unordered_map<size_t, Vector2> previousVelocity;
     Entity *origin;
+
 
     Simulator();
     ~Simulator();
     void Clear();
     void LoadSituation(string name);
     void changeOrigin();
-    void computeLines();
-    void update();
+    void startExecutors();
+    void stopExecutors();
 };
 
 Simulator::Simulator()
@@ -59,104 +80,179 @@ void Simulator::changeOrigin()
     }
 }
 
-void Simulator::computeLines()
+void Simulator::computeLines(Entity *entity)
 {
-    for (Entity *entity : this->entities)
+    const auto r = lines.find((size_t)entity);
+    vector<Vector2> *points;
+    if (r == lines.end())
     {
-        const auto r = lines.find((size_t)entity);
-        vector<Vector2> *points;
-        if (r == lines.end())
-        {
-            points = new vector<Vector2>();
-            lines[(size_t)entity] = points;
-        }
-        else
-        {
-            points = r->second;
-        }
-        Vector2 lastPosition = {0, 0};
-        Vector2 lastVelocity = {0, 1};
+        points = new vector<Vector2>();
+        lines[(size_t)entity] = points;
+    }
+    else
+    {
+        points = r->second;
+    }
+    Vector2 lastPosition = {0, 0};
+    Vector2 lastVelocity = {0, 1};
 
-        if (points->size() > 0)
-        {
-            lastPosition = points->back();
-            lastVelocity = previousVelocity[(size_t)entity];
-        }
+    if (points->size() > 0)
+    {
+        lastPosition = points->back();
+        lastVelocity = previousVelocity[(size_t)entity];
+    }
 
-        while (points->size() > maxLines)
-            points->erase(points->begin());
+    while (points->size() > maxLines)
+        points->erase(points->begin());
 
+    float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y;
+    float det = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
+    float angle = atan2(det, dot);
 
-        float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y;
-        float det = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
-        float angle = atan2(det, dot);
-
-        if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
-        {
-            points->push_back(Vector2{
-                (float)entity->position.x,
-                (float)entity->position.y});
-            previousVelocity[(size_t)entity] = Vector2{
-                (float)entity->velocity.x,
-                (float)entity->velocity.y
-            };
-        }
+    if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
+    {
+        points->push_back(Vector2{
+            (float)entity->position.x,
+            (float)entity->position.y});
+        previousVelocity[(size_t)entity] = Vector2{
+            (float)entity->velocity.x,
+            (float)entity->velocity.y};
     }
 }
 
-void Simulator::update()
+void Simulator::stopExecutors()
 {
-    computeLines();
-    for (size_t i = 0; i < entities.size(); i++)
+    this->executorShouldStop.store(true);
+    for (size_t i = 0; i < executorCount; i++)
+    {
+        threads[i].join();
+    }
+}
+void Simulator::startExecutors()
+{
+    for (size_t i = 0; i < this->entities.size(); i++)
     {
         Entity *a = entities[i];
-        for (size_t j = i + 1; j < entities.size(); j++)
+        computeLines(a);
+        for (size_t j = i + 1; j < this->entities.size(); j++)
         {
-            if (i == j)
-                continue;
-
             Entity *b = entities[j];
-            Vector3l AB = {
-                (b->position.x - a->position.x) * pow(10, 3),
-                (b->position.y - a->position.y) * pow(10, 3),
-                (b->position.z - a->position.z) * pow(10, 3)};
+            pairs.push_back(Pair{a, b});
 
-            long double dist2 = (AB.x * AB.x + AB.y * AB.y + AB.z * AB.z); // m^2
-            long double dist = sqrtl(dist2);
-
-            long double k = G /* a->mass * b->mass */ / dist2; // m / kg / s^2
-
-            AB.x /= dist;
-            AB.y /= dist;
-            AB.z /= dist;
-
-            // m/s^2
-            a->acceleration.x += AB.x * k * b->mass;
-            a->acceleration.y += AB.y * k * b->mass;
-            a->acceleration.z += AB.z * k * b->mass;
-
-            b->acceleration.x += AB.x * -k * a->mass;
-            b->acceleration.y += AB.y * -k * a->mass;
-            b->acceleration.z += AB.z * -k * a->mass;
+            cout << "SIMULATOR: adding pair between " << pairs.size() << " " << i << " and " << j << endl;
         }
     }
 
-    for (auto entity : entities)
+    const size_t processor_count = std::thread::hardware_concurrency();
+    executorCount = max(
+        (size_t)1,
+        min(
+            (size_t)MAX_THREADS,
+            min(processor_count - 1, (size_t)floor(pairs.size() / 50))));
+
+    cout << "SIMULATOR: using \033[1m" << executorCount << "\033[0m/" << processor_count << " threads" << endl;
+
+    sync_point1 = std::make_unique<std::barrier<>>(executorCount);
+    // sync_point2 = std::make_unique<std::barrier<>>(executorCount);
+
+    size_t pairsCursor = 0;
+    size_t pairsChunk = floor((this->pairs.size()) / executorCount);
+    size_t pairsRest = this->pairs.size() % executorCount;
+
+    size_t entityCursor = 0;
+    size_t entityChunk = floor((this->entities.size()) / executorCount);
+    size_t entityRest = this->entities.size() % executorCount;
+    cout << "entities: " << this->entities.size() << " pairs: " << this->pairs.size() << endl;
+
+    for (size_t i = 0; i < executorCount; i++)
     {
-        entity->velocity.x += entity->acceleration.x * dt;
-        entity->velocity.y += entity->acceleration.y * dt;
-        entity->velocity.z += entity->acceleration.z * dt;
+        size_t pairsRangeStart = pairsCursor;
+        pairsCursor += pairsChunk;
+        size_t pairsRangeEnd = pairsCursor - 1;
+        if (pairsRest > 0)
+        {
+            pairsRangeEnd++;
+            pairsCursor++;
+            pairsRest--;
+        }
 
-        entity->position.x += entity->velocity.x * dt * pow(10, -3); // m to km
-        entity->position.y += entity->velocity.y * dt * pow(10, -3);
-        entity->position.z += entity->velocity.z * dt * pow(10, -3);
+        size_t entityRangeStart = entityCursor;
+        entityCursor += entityChunk;
+        size_t entityRangeEnd = entityCursor - 1;
+        if (entityRest > 0)
+        {
+            entityRangeEnd++;
+            entityCursor++;
+            entityRest--;
+        }
 
-        entity->acceleration.x = 0;
-        entity->acceleration.y = 0;
-        entity->acceleration.z = 0;
+        cout << "SIMULATOR: starting thread " << i << " with pair range: " << pairsRangeStart << " -> " << pairsRangeEnd << " and entity range: " << entityRangeStart << " -> " << entityRangeEnd << endl;
+        threads[i] = thread(&Simulator::executor, this, i, pairsRangeStart, pairsRangeEnd, entityRangeStart, entityRangeEnd);
     }
+}
+void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pairsRangeEnd, size_t entityRangeStart, size_t entityRangeEnd)
+{
+    while (1)
+    {
+        for (size_t i = pairsRangeStart; i <= pairsRangeEnd; i++)
+        {
+            Entity *a = pairs[i].a;
+            Entity *b = pairs[i].b;
+            computeInteraction(a, b);
+        }
 
-    this->time += dt / 60;
+        // cout << "SIMULATOR: executor " << executor_id << " waiting" << endl;
+        sync_point1->arrive_and_wait();
+        // cout << "SIMULATOR: executor " << executor_id << " continue" << endl;
+
+        for (size_t i = entityRangeStart; i <= entityRangeEnd; i++)
+        {
+            Entity *entity = entities[i];
+            computeLines(entity);
+            entity->velocity.x += entity->acceleration.x * dt;
+            entity->velocity.y += entity->acceleration.y * dt;
+            entity->velocity.z += entity->acceleration.z * dt;
+
+            entity->position.x += entity->velocity.x * dt * pow(10, -3); // m to km
+            entity->position.y += entity->velocity.y * dt * pow(10, -3);
+            entity->position.z += entity->velocity.z * dt * pow(10, -3);
+
+            entity->acceleration.x = 0;
+            entity->acceleration.y = 0;
+            entity->acceleration.z = 0;
+        }
+
+        if (executorShouldStop.load(std::memory_order_relaxed))
+        {
+            cout << "SIMULATOR: executor " << executor_id << " stopped" << endl;
+            return;
+        }
+    }
+}
+void Simulator::computeInteraction(Entity *a, Entity *b)
+{
+    Vector3l AB = {
+        (b->position.x - a->position.x) * pow(10, 3),
+        (b->position.y - a->position.y) * pow(10, 3),
+        (b->position.z - a->position.z) * pow(10, 3)};
+
+    long double dist2 = (AB.x * AB.x + AB.y * AB.y + AB.z * AB.z); // m^2
+    long double dist = sqrtl(dist2);
+
+    long double k = G /* a->mass * b->mass */ / dist2; // m / kg / s^2
+
+    AB.x /= dist;
+    AB.y /= dist;
+    AB.z /= dist;
+
+    // m/s^2
+    a->acceleration.x += AB.x * k * b->mass;
+    a->acceleration.y += AB.y * k * b->mass;
+    a->acceleration.z += AB.z * k * b->mass;
+
+    b->acceleration.x += AB.x * -k * a->mass;
+    b->acceleration.y += AB.y * -k * a->mass;
+    b->acceleration.z += AB.z * -k * a->mass;
 }
 
 void Simulator::Clear()

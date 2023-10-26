@@ -1,11 +1,11 @@
 #include "raylib.h"
 #include <iostream>
 #include <vector>
-
 #include "entity.hpp"
 #include "simulator.hpp"
 #include "renderer.hpp"
 #include "UI.hpp"
+
 
 
 
@@ -15,11 +15,19 @@
 //------------------------------------------------------------------------------------
 int main(void)
 {
-    Renderer renderer = Renderer();
+
+    /**
+     * SIMULATOR
+    */
     Simulator sim = Simulator();
+    sim.LoadSituation("earthManyMoon.xml");
+    sim.startExecutors();
+    // return 0;
+
+
+    Renderer renderer = Renderer();
     UI ui = UI(&sim);
     
-    sim.LoadSituation("earthMoon.xml");
 
     int width = 800;
     int height = 450;
@@ -44,11 +52,6 @@ int main(void)
             renderer.setWindowsSize(width, height);
             ui.setWindowsSize(width, height);
         }
-        for (size_t i = 0; i < 1000; i++)
-        {
-            sim.update();
-        }
-
 
         float scroll = GetMouseWheelMove();
         if(scroll != 0){
@@ -68,5 +71,6 @@ int main(void)
     }
 
     CloseWindow();
+    sim.stopExecutors();
     return 0;
 }

@@ -14,8 +14,7 @@
                 "PLATFORM_DESKTOP"
             ],
             "compilerPath": "${workspaceFolder}/../../raylib/w64devkit/bin/g++.exe",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cppStandard": "c++20",
             "intelliSenseMode": "gcc-x64"
         },
         {
@@ -33,7 +32,7 @@
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
-            "cppStandard": "c++14",
+            "cppStandard": "c++20",
             "intelliSenseMode": "clang-x64"
 
         }

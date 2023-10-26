@@ -19,7 +19,7 @@ private:
     bool windowCollapsed = false;
     Rectangle windowRect = {0, 0, 200, 200};
     Vector2 bufferSize = {800, 450};
-    float sliderValue = 0.5f;
+    float sliderValue = 0.1f;
     Simulator *sim;
     Renderer *renderer;
 
@@ -85,7 +85,7 @@ public:
         x = windowRect.x + MARGIN;
 
         y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail size: %0.0f", sim->maxLines), x, y, fontSize, BLACK);
-        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->maxLines, 10.0f, 50000.0f);
+        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->maxLines, 10.0f, 2000.0f);
 
         // y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail distance: %0.0f", sim->lineDistance), x, y, fontSize, BLACK);
         // y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->lineDistance, 1000.0f, 100000.0f);

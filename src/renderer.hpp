@@ -42,7 +42,7 @@ void Renderer::render(Simulator *sim)
         sim->origin->position.y,
         // 0,
         0};
-
+    // cout << sim->entities.size() << endl;
     ClearBackground(BLACK);
     for (Entity *entity : sim->entities)
     {

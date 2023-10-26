@@ -6,20 +6,20 @@
         {
             "label": "build debug",
             "type": "process",
-            "command": "make",
+            "command": "./build.sh",
             "args": [
                 // "PLATFORM=PLATFORM_DESKTOP",
-                "BUILD_MODE=DEBUG",
+                // "BUILD_MODE=DEBUG",
                 // "PROJECT_NAME=gravitx",
                 // "OBJS=src/gravitx.cpp"
             ],
             "windows": {
-                "command": "mingw32-make.exe",
+                "command": "./build.sh",
                 "args": [
                     // "RAYLIB_PATH=f:/raylib/raylib",
                     // "PROJECT_NAME=gravitx",
                     // "OBJS=src/gravitx.cpp",
-                    "BUILD_MODE=DEBUG"
+                    // "BUILD_MODE=DEBUG"
                 ],
             },
             "linux": {

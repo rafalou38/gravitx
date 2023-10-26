@@ -1,5 +1,6 @@
 #ifndef G
 #define G (6.67430 * pow(10, -11))  //  m^3 kg^−1 s^−2
+typedef unsigned int uint;
 
 typedef struct Vector3l {
     long double x;                // Vector x component
