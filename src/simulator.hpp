@@ -133,12 +133,10 @@ void Simulator::startExecutors()
     for (size_t i = 0; i < this->entities.size(); i++)
     {
         Entity *a = entities[i];
-        computeLines(a);
         for (size_t j = i + 1; j < this->entities.size(); j++)
         {
             Entity *b = entities[j];
             pairs.push_back(Pair{a, b});
-
             cout << "SIMULATOR: adding pair between " << pairs.size() << " " << i << " and " << j << endl;
         }
     }
