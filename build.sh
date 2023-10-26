@@ -27,7 +27,7 @@ e:/raylib/w64devkit/bin/g++ -o "$NAME_PART.exe" $FILES $CFLAGS $LDFLAGS
 # Reset Environment
 unset PATH
 
-# # Execute program
-# if [ -f "$NAME_PART.exe" ]; then
-#     "./$NAME_PART.exe"
-# fi
+# Execute program
+if [ -f "$NAME_PART.exe" ]; then
+    "./$NAME_PART.exe"
+fi

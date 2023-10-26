@@ -16,7 +16,7 @@ int main(void)
      * SIMULATOR
      */
     Simulator sim = Simulator();
-    sim.LoadSituation("earthMoon.xml");
+    sim.LoadSituation("earthManyMoon.xml");
     sim.startExecutors();
     // return 0;
 

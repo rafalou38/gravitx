@@ -8,7 +8,8 @@
 #include "simulator.hpp"
 #include "raymath.h"
 
-struct Polar3D{
+struct Polar3D
+{
     float d;
     float theta;
     float phi;
@@ -42,19 +43,18 @@ public:
     void mainLoop();
 };
 
-Renderer::Renderer(/* args */)
+Renderer::Renderer()
 {
     cameraPos = {
         .d = 100,
-        .theta = 0,
-        .phi = PI/4
-    };
+        .theta = PI / 2,
+        .phi = PI / 2};
     camera = {0};
 
-    camera.target = (Vector3){0.0f, 0.0f, 0.0f};      // Camera looking at point
-    camera.up = (Vector3){0.0f, 1.0f, 0.0f};          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                              // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;           // Camera projection type
+    camera.target = (Vector3){0.0f, 0.0f, 0.0f}; // Camera looking at point
+    camera.up = (Vector3){0.0f, 1.0f, 0.0f};     // Camera up vector (rotation towards target)
+    camera.fovy = 45.0f;                         // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;      // Camera projection type
 
     updateCameraPos();
 }
@@ -63,40 +63,41 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::updateCameraPos(){
-    // camera.position.x  = cameraPos.d * cos(cameraPos.phi) * cos(cameraPos.theta);
-    // camera.position.y  = cameraPos.d * cos(cameraPos.phi) * sin(cameraPos.theta);
-    // camera.position.z  = cameraPos.d * sin(cameraPos.phi);
-    camera.position.x  = 0;
-    camera.position.y  = cameraPos.d * sin(cameraPos.phi);
-    camera.position.z  = cameraPos.d * cos(cameraPos.phi);
+void Renderer::updateCameraPos()
+{
+    camera.position.x = cameraPos.d * cos(cameraPos.theta) * sin(cameraPos.phi);
+    camera.position.y = cameraPos.d * cos(cameraPos.phi);
+    camera.position.z = cameraPos.d * sin(cameraPos.theta) * sin(cameraPos.phi);
 
-    cout << " x:" << camera.position.x;
-    cout << " y:" << camera.position.y;
-    cout << " z:" << camera.position.z << endl;
+    if (fmod(abs(cameraPos.phi), 2 * PI) > PI)
+    {
+        camera.up.y = -1;
+    }
+    else
+    {
+        camera.up.y = 1;
+    }
 }
 void Renderer::update()
 {
 #ifdef D3D
-    // UpdateCamera(&camera, CAMERA_CUSTOM);
-    if(IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
     {
         Vector2 mousePositionDelta = GetMouseDelta();
-        // cameraPos.phi +=  mousePositionDelta.y / windowsSize.y * 2 * PI;
-        cameraPos.theta +=  mousePositionDelta.x / windowsSize.x * 2 * PI;
+        cameraPos.phi -= mousePositionDelta.y / windowsSize.y * 2 * PI;
+        cameraPos.theta += mousePositionDelta.x / windowsSize.x * 2 * PI;
+        if (cameraPos.phi < 0)
+            cameraPos.phi = 2 * PI + cameraPos.phi;
 
-        cout << "theta:" << cameraPos.theta << endl;
-        // cameraPos.phi += -1 *  mousePositionDelta.y / windowsSize.y * 2 * PI;
-        // cameraPos.theta += 0.01;
+        // cout << cameraPos.phi << " " << cameraPos.theta << endl;
+
         updateCameraPos();
     }
-
 #endif
 }
 
 void Renderer::render3D(Simulator *sim)
 {
-
 
     Vector3l center = {
         sim->origin->position.x,
@@ -106,11 +107,13 @@ void Renderer::render3D(Simulator *sim)
         sim->origin->position.z};
     ClearBackground(BLACK);
     BeginMode3D(camera);
-    DrawGrid(20, scale * 100000.0f);
 
-    DrawLine3D({0,0,0}, {100,0,0}, RED);
-    DrawLine3D({0,0,0}, {0,100,0}, GREEN);
-    DrawLine3D({0,0,0}, {0,0,100}, BLUE);
+#ifdef GIZMOS
+    // DrawGrid(20, scale * 100000.0f);
+    DrawLine3D({0, 0, 0}, {100, 0, 0}, ColorAlpha(RED, 0.3));
+    DrawLine3D({0, 0, 0}, {0, 100, 0}, ColorAlpha(GREEN, 0.3));
+    DrawLine3D({0, 0, 0}, {0, 0, 100}, ColorAlpha(BLUE, 0.3));
+#endif
 
     Vector3 pos;
     for (Entity *entity : sim->entities)
@@ -128,6 +131,8 @@ void Renderer::render3D(Simulator *sim)
         {
             Vector3 startPos;
             Vector3 endPos;
+            cout << points->size() << endl;
+
             for (size_t i = 0; i < points->size() - 1; i += 1)
             {
                 startPos = {
@@ -135,11 +140,22 @@ void Renderer::render3D(Simulator *sim)
                     (float)((center.y - points->at(i).y) * -scale),
                     (float)((center.z - points->at(i).z) * -scale),
                 };
-                endPos = {
-                    (float)((center.x - points->at(i + 1).x) * -scale),
-                    (float)((center.y - points->at(i + 1).y) * -scale),
-                    (float)((center.z - points->at(i + 1).z) * -scale),
-                };
+                if (i + 1 >= points->size())
+                    break;
+
+                try
+                {
+                    endPos = {
+                        (float)((center.x - points->at(i + 1).x) * -scale),
+                        (float)((center.y - points->at(i + 1).y) * -scale),
+                        (float)((center.z - points->at(i + 1).z) * -scale),
+                    };
+                }
+                catch (const std::exception &e)
+                {
+                    break;
+                }
+
                 Color color = ColorAlpha(entity->color, 0.6 * i / (points->size() - 1));
                 DrawLine3D(
                     startPos,

@@ -7,6 +7,7 @@
 #define MAX_THREADS 1
 #define TEXTURES
 #define D3D
+#define GIZMOS
 
 
 #endif
