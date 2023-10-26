@@ -21,6 +21,7 @@ private:
 #ifdef D3D
     Camera3D camera;
     Polar3D cameraPos;
+
 #endif
 
     Vector2 windowsSize = Vector2();
@@ -45,6 +46,7 @@ public:
 
 Renderer::Renderer()
 {
+
     cameraPos = {
         .d = 100,
         .theta = PI / 2,
@@ -122,10 +124,14 @@ void Renderer::render3D(Simulator *sim)
             (float)((center.x - entity->position.x) * -scale),
             (float)((center.y - entity->position.y) * -scale),
             (float)((center.z - entity->position.z) * -scale)};
-        DrawSphere(
-            pos,
-            entity->radius * scale,
-            entity->color);
+        // Draw
+
+        DrawModel(entity->getModel(), pos, entity->radius * scale, WHITE); // 20
+        // DrawSphere(
+        //     pos,
+        //     entity->radius * scale,
+        //     entity->color);
+
         auto points = sim->lines.find((size_t)entity)->second;
         if (points->size() >= 2)
         {

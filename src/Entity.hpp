@@ -11,7 +11,11 @@ class Entity
 {
 private:
     Texture2D texture;
+    Mesh drawMesh;
+    Model drawModel;
     bool textureLoaded = false;
+    bool modelLoaded = false;
+
 public:
     std::string texturePath = "";
     std::string label;
@@ -40,6 +44,7 @@ public:
     void setColor(char *rawColor);
     void setTexture(std::string filePath);
     Texture2D getTexture();
+    Model getModel();
 };
 
 Entity::Entity(std::string label)
@@ -54,37 +59,56 @@ Entity::~Entity()
 {
 }
 
-void Entity::setColor(char *rawColor){
+void Entity::setColor(char *rawColor)
+{
     rawColor += 1;
     unsigned int colorInt;
     sscanf(rawColor, "%x", &colorInt);
     this->color = GetColor(colorInt);
 }
-void Entity::setTexture(std::string filePath){
+void Entity::setTexture(std::string filePath)
+{
     this->texturePath = filePath;
     this->textureLoaded = false;
 }
 
-Texture2D Entity::getTexture(){
+Texture2D Entity::getTexture()
+{
     assert(this->texturePath != "");
-    if(!textureLoaded){
+    if (!textureLoaded)
+    {
         this->texture = LoadTexture(texturePath.c_str());
     }
     return this->texture;
 }
 
+Model Entity::getModel()
+{
+    if (!modelLoaded)
+    {
+        drawMesh = GenMeshSphere(1, 32, 32);
+        drawModel = LoadModelFromMesh(drawMesh);
+        SetMaterialTexture(&drawModel.materials[0], MATERIAL_MAP_DIFFUSE, getTexture());
+        modelLoaded = true;
+    }
+    return drawModel;
+}
 
-void Entity::setPosition(float x, float y){
+void Entity::setPosition(float x, float y)
+{
     this->position.x = x;
     this->position.y = y;
 }
-void Entity::setMass(double mass){
+void Entity::setMass(double mass)
+{
     this->mass = mass;
 }
-void Entity::setRadius(float radius){
+void Entity::setRadius(float radius)
+{
     this->radius = radius;
 }
-void Entity::setVelocity(float x, float y){
+void Entity::setVelocity(float x, float y)
+{
     this->velocity.x = x;
     this->velocity.y = y;
 }

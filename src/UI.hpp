@@ -69,6 +69,9 @@ public:
     }
     void setWindowsSize(float x, float y) { this->bufferSize = {x, y}; };
     void renderUI(){
+        int fps = GetFPS();
+        DrawText(TextFormat("%d", fps), 0, bufferSize.y - 16, 16, WHITE);
+
         windowBtn = GuiWindowBox(windowRect, "#15#");
         if(windowCollapsed) return;
 

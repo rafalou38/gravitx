@@ -34,7 +34,7 @@ int main(void)
     // Vector2 v = GetWindowPosition();
     // cout << v.x << " " << v.y << endl;
     // SetWindowPosition(1520, 2500);
-    SetTargetFPS(60);
+    // SetTargetFPS(60);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
     // Main game loop
