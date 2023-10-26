@@ -131,7 +131,6 @@ void Renderer::render3D(Simulator *sim)
         {
             Vector3 startPos;
             Vector3 endPos;
-            cout << points->size() << endl;
 
             for (size_t i = 0; i < points->size() - 1; i += 1)
             {

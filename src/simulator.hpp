@@ -137,7 +137,6 @@ void Simulator::startExecutors()
         {
             Entity *b = entities[j];
             pairs.push_back(Pair{a, b});
-            cout << "SIMULATOR: adding pair between " << pairs.size() << " " << i << " and " << j << endl;
         }
     }
 
