@@ -6,10 +6,6 @@
 #include "renderer.hpp"
 #include "UI.hpp"
 
-
-
-
-
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -18,16 +14,14 @@ int main(void)
 
     /**
      * SIMULATOR
-    */
+     */
     Simulator sim = Simulator();
-    sim.LoadSituation("earthManyMoon.xml");
+    sim.LoadSituation("earthMoon.xml");
     sim.startExecutors();
     // return 0;
 
-
     Renderer renderer = Renderer();
     UI ui = UI(&sim);
-    
 
     int width = 800;
     int height = 450;
@@ -46,7 +40,8 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())
     {
-        if(IsWindowResized()){
+        if (IsWindowResized())
+        {
             width = GetRenderWidth();
             height = GetRenderHeight();
             renderer.setWindowsSize(width, height);
@@ -54,18 +49,25 @@ int main(void)
         }
 
         float scroll = GetMouseWheelMove();
-        if(scroll != 0){
-            if(scroll > 0)
+        if (scroll != 0)
+        {
+            if (scroll > 0)
                 renderer.setScale(renderer.scale * 1.1);
             else
                 renderer.setScale(renderer.scale * 0.9);
         }
-        if(GetKeyPressed() == KEY_O) sim.changeOrigin();
+        if (GetKeyPressed() == KEY_O)
+            sim.changeOrigin();
 
         ui.updateUI(&sim, &renderer);
+        renderer.update();
 
         BeginDrawing();
+#ifdef D3D
+            renderer.render3D(&sim);
+#else
             renderer.render(&sim);
+#endif
             ui.renderUI();
         EndDrawing();
     }

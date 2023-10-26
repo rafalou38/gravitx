@@ -26,7 +26,7 @@ struct Pair
 class Simulator
 {
 private:
-    unordered_map<size_t, Vector2> previousVelocity;
+    unordered_map<size_t, Vector3> previousVelocity;
 
     std::vector<Pair> pairs;
     size_t executorCount = 0;
@@ -45,7 +45,7 @@ public:
     float dt = 5.0f;
     long double time = 0;
     std::vector<Entity *> entities;
-    unordered_map<size_t, vector<Vector2> *> lines;
+    unordered_map<size_t, vector<Vector3> *> lines;
     Entity *origin;
 
 
@@ -60,8 +60,8 @@ public:
 
 Simulator::Simulator()
 {
-    lines = unordered_map<size_t, vector<Vector2> *>();
-    previousVelocity = unordered_map<size_t, Vector2>();
+    lines = unordered_map<size_t, vector<Vector3> *>();
+    previousVelocity = unordered_map<size_t, Vector3>();
 }
 Simulator::~Simulator()
 {
@@ -83,18 +83,18 @@ void Simulator::changeOrigin()
 void Simulator::computeLines(Entity *entity)
 {
     const auto r = lines.find((size_t)entity);
-    vector<Vector2> *points;
+    vector<Vector3> *points;
     if (r == lines.end())
     {
-        points = new vector<Vector2>();
+        points = new vector<Vector3>();
         lines[(size_t)entity] = points;
     }
     else
     {
         points = r->second;
     }
-    Vector2 lastPosition = {0, 0};
-    Vector2 lastVelocity = {0, 1};
+    Vector3 lastPosition = {0, 0};
+    Vector3 lastVelocity = {0, 1};
 
     if (points->size() > 0)
     {
@@ -111,10 +111,10 @@ void Simulator::computeLines(Entity *entity)
 
     if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
     {
-        points->push_back(Vector2{
+        points->push_back(Vector3{
             (float)entity->position.x,
             (float)entity->position.y});
-        previousVelocity[(size_t)entity] = Vector2{
+        previousVelocity[(size_t)entity] = Vector3{
             (float)entity->velocity.x,
             (float)entity->velocity.y};
     }
