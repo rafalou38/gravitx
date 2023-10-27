@@ -1,32 +1,33 @@
-# Build mode for project: DEBUG or RELEASE
-BUILD_MODE         ?= DEBUG
-PLATFORM           ?= PLATFORM_DESKTOP
+CXX = ../../raylib/w64devkit/bin/g++
+RAYLIB_PATH = ../../raylib/raylib
+CXXFLAGS = -DPLATFORM_DESKTOP -static -std=c++20 -Wall
 
-RAYLIB_PATH        ?= ../../raylib/raylib
-COMPILER_PATH      ?= ../../raylib/w64devkit/bin
+INCLUDE_PATHS = -I. -Iexternal -I$(RAYLIB_PATH)/src -Ilib -Ilib/imgui
+LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src -lraylib -lopengl32 -lgdi32 -lwinmm
 
-CC = ../../raylib/w64devkit/bin/g++
+SRCDIR = src
+LIBDIR = lib
+IMGUI_DIR = $(LIBDIR)/imgui
+OBJDIR = obj
 
+SOURCES = $(SRCDIR)/gravitx.cpp $(LIBDIR)/tinyxml2.cpp $(wildcard $(IMGUI_DIR)/*.cpp)
+OBJECTS = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.cpp=.o)))
 
-CFLAGS += -Wall -std=c++17 -D_DEFAULT_SOURCE -Wno-missing-braces $(RAYLIB_PATH)/src/raylib.rc.data
+EXECUTABLE = gravitx
 
-# ifeq ($(BUILD_MODE),DEBUG)
-CFLAGS += -g# -O0
-# else
-#     CFLAGS += -s -O1
-# endif
+$(EXECUTABLE): $(OBJECTS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(INCLUDE_PATHS) $(LDFLAGS)
 
-INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external
-LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src
-LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
+$(OBJDIR)/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
-OBJS = obj/gravitx.o obj/tinyxml2.o
+$(OBJDIR)/%.o: lib/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
-all: gravitx
-gravitx: $(OBJS)
-	@echo "Linking gravitx"
-	$(CC) -o gravitx.exe $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+$(OBJDIR)/%.o: lib/imgui/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
-obj/%.o: %.cpp
-	@echo "Compiling $<"
-	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE)
+
+.PHONY: clean
