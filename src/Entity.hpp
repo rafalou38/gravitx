@@ -88,7 +88,9 @@ Model Entity::getModel()
     {
         drawMesh = GenMeshSphere(1, 32, 32);
         drawModel = LoadModelFromMesh(drawMesh);
-        SetMaterialTexture(&drawModel.materials[0], MATERIAL_MAP_DIFFUSE, getTexture());
+        if(texturePath != ""){
+            SetMaterialTexture(&drawModel.materials[0], MATERIAL_MAP_DIFFUSE, getTexture());
+        }
         modelLoaded = true;
     }
     return drawModel;

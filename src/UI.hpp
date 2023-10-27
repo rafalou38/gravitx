@@ -19,7 +19,7 @@ private:
     bool windowCollapsed = false;
     Rectangle windowRect = {0, 0, 200, 200};
     Vector2 bufferSize = {800, 450};
-    float sliderValue = 0.1f;
+    float sliderValue = 0.0f;
     Simulator *sim;
     Renderer *renderer;
 
@@ -65,7 +65,7 @@ public:
     UI(Simulator *sim)
     {
         this->sim = sim;
-        sim->dt = exp(sliderValue) - 0.99;
+        sim->dt = exp(sliderValue);
     }
     void setWindowsSize(float x, float y) { this->bufferSize = {x, y}; };
     void renderUI(){
@@ -80,10 +80,10 @@ public:
         float y = windowRect.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + MARGIN;
         float x = windowRect.x + MARGIN * 2 + MeasureText("Dt", fontSize/2);
         float prev = sliderValue;
-        GuiSlider({x, y, 200 - ((x + 8 * MARGIN) - windowRect.x), SLIDER_HEIGHT}, "Dt", TextFormat("%0.1f", sim->dt), &sliderValue, 0.1f, 10.0f);
+        GuiSlider({x, y, 200 - ((x + 8 * MARGIN) - windowRect.x), SLIDER_HEIGHT}, "Dt", TextFormat("%0.001f", sim->dt), &sliderValue, -10.0f, 10.0f);
         if (prev != sliderValue)
         {
-            sim->dt = exp(sliderValue) - 0.99;
+            sim->dt = exp(sliderValue);
         }
         x = windowRect.x + MARGIN;
 

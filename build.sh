@@ -22,7 +22,7 @@ fi
 
 # Compile program
 echo  g++ -o "$NAME_PART.exe" $FILES $CFLAGS $LDFLAGS
-e:/raylib/w64devkit/bin/g++ -o "$NAME_PART.exe" $FILES $CFLAGS $LDFLAGS
+../../raylib/w64devkit/bin/g++ -o "$NAME_PART.exe" $FILES $CFLAGS $LDFLAGS
 
 # Reset Environment
 unset PATH
