@@ -1,0 +1,25 @@
+<Situation
+    name="Terre Lune"
+    origin="Earth"
+>
+    <Entity
+        name="Earth"
+        x="0"
+        y="0"
+        mass="5.9722e+24"
+        radius="6378.1"
+        color="#0000ff"
+        texture="earth.png"
+    >
+        <Entity
+            name="ISS"
+            x="0"
+            y="-6771"
+            Vx="7.66e+3"
+            Vy="0"
+            mass="450000"
+            radius="0.1"
+            color="#9e9e9e"
+        />
+    </Entity>
+</Situation>
