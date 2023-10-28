@@ -254,12 +254,21 @@ void Simulator::computeInteraction(Entity *a, Entity *b)
 
 void Simulator::Clear()
 {
-    // TODO: clear lines
+    this->stopExecutors();
+    for(auto line : lines){
+        delete line.second;
+    }
+    lines.clear();
     for (Entity *entity : entities)
     {
         delete entity;
     }
     entities.clear();
+
+    pairs.clear();
+
+    executorCount = 0;
+    executorShouldStop = false;
 }
 
 /**
@@ -338,6 +347,7 @@ void Simulator::LoadSituation(string name)
         };
         return;
     };
+    
     string filePath = "situations/" + name;
     // Check if the file exists
     if (!FileExists(filePath.c_str()))
@@ -360,6 +370,8 @@ void Simulator::LoadSituation(string name)
     std::cout << "Loaded " << this->entities.size() << " entities" << endl;
     for (auto entity : this->entities)
     {
+        // Reconfigure lines 
+        computeLines(entity);
         std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position.x << "\ty:" << entity->position.y << "\tVx:" << entity->velocity.x << "\tVy:" << entity->velocity.y << "\tM:" << entity->mass << endl;
     }
 }

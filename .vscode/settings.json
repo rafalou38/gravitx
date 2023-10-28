@@ -60,7 +60,8 @@
 		"stop_token": "cpp",
 		"thread": "cpp",
 		"cinttypes": "cpp",
-		"barrier": "cpp"
+		"barrier": "cpp",
+		"*.m": "cpp"
 	},
 	"terminal.integrated.defaultProfile.windows": "w64devkit",
 	"terminal.integrated.profiles.windows": {

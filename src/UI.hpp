@@ -1,112 +1,121 @@
+#ifndef UI_H
+#define UI_H
 
-#define RAYGUI_IMPLEMENTATION
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wenum-compare"
-#include "../lib/raygui.h"
-#pragma GCC diagnostic pop
+#include <string>
+#include <iostream>
+#include <filesystem>
+
+#include "../lib/imgui/imgui.h"
+#include "../lib/rlImGui/rlImGui.h"
+#include "raylib.h"
 
 #include "simulator.hpp"
+#include "renderer.hpp"
 
 #define MARGIN 5
 
+class Renderer;
 class UI
 {
 private:
-    Vector2 mousePosition = {0, 0};
-    Vector2 panOffset = {0, 0};
-    bool dragWindow = false;
-    bool windowBtn = false;
-    bool windowCollapsed = false;
-    Rectangle windowRect = {0, 0, 200, 200};
-    Vector2 bufferSize = {800, 450};
-    float sliderValue = 0.0f;
     Simulator *sim;
     Renderer *renderer;
+    char buf[256];
+    float f;
+    float color[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+    bool my_tool_active = true;
 
-    void updateWindowRect()
-    {
-        mousePosition = GetMousePosition();
+    vector<string> situations;
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !dragWindow)
-        {
-            if (CheckCollisionPointRec(mousePosition, (Rectangle){windowRect.x, windowRect.y, windowRect.width, RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT}))
-            {
-                dragWindow = true;
-                panOffset = {mousePosition.x - windowRect.x, mousePosition.y - windowRect.y};
-            }
-        }
-
-        if (dragWindow)
-        {
-            windowRect.x = (mousePosition.x - panOffset.x);
-            windowRect.y = (mousePosition.y - panOffset.y);
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-                dragWindow = false;
-        }
-
-        
-
-        if (windowBtn)
-            windowCollapsed = !windowCollapsed;
-        if (windowCollapsed)
-        {
-            // windowRect.width = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT * 4;
-            windowRect.height = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT;
-        }
-        else
-        {
-            // Reset by renderUI
-            // windowRect.height = 200;
-            // windowRect.width = 200;
-        }
-    }
+    ImVec2 windowPos;
+    ImVec2 windowSize;
 
 public:
     UI(Simulator *sim)
     {
         this->sim = sim;
-        sim->dt = exp(sliderValue);
-    }
-    void setWindowsSize(float x, float y) { this->bufferSize = {x, y}; };
-    void renderUI(){
-        int fps = GetFPS();
-        DrawText(TextFormat("%d", fps), 0, bufferSize.y - 16, 16, WHITE);
+        rlImGuiSetup(true);
 
-        windowBtn = GuiWindowBox(windowRect, "#15#");
-        if(windowCollapsed) return;
-
-        float fontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
-        #define SLIDER_HEIGHT  15
-        float y = windowRect.y + RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT + MARGIN;
-        float x = windowRect.x + MARGIN * 2 + MeasureText("Dt", fontSize/2);
-        float prev = sliderValue;
-        GuiSlider({x, y, 200 - ((x + 8 * MARGIN) - windowRect.x), SLIDER_HEIGHT}, "Dt", TextFormat("%0.001f", sim->dt), &sliderValue, -10.0f, 10.0f);
-        if (prev != sliderValue)
+        std::string path = "./situations";
+        for (const auto &entry : std::filesystem::directory_iterator(path))
         {
-            sim->dt = exp(sliderValue);
+            if (entry.path().extension() == ".xml")
+                situations.push_back(entry.path().filename().string());
         }
-        x = windowRect.x + MARGIN;
-
-        y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail size: %0.0f", sim->maxLines), x, y, fontSize, BLACK);
-        y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->maxLines, 10.0f, 2000.0f);
-
-        // y += SLIDER_HEIGHT + MARGIN * 2;        DrawText(TextFormat("Trail distance: %0.0f", sim->lineDistance), x, y, fontSize, BLACK);
-        // y += fontSize + MARGIN;        GuiSlider({x, y, 200 - 2*MARGIN, SLIDER_HEIGHT}, "", "", &sim->lineDistance, 1000.0f, 100000.0f);
-
-        y += SLIDER_HEIGHT + MARGIN * 2;
-        DrawText(TextFormat("Scale: %0.0f Km = 1px", 1/renderer->scale), x, y, fontSize, BLACK);
-        y+= fontSize + MARGIN;
-
-        auto d = minutesToDetailedTime(sim->time);
-        DrawText(TextFormat("Time: %dy %dd %dh %dm",d.years, d.days, d.hours, d.minutes), x, y, fontSize, BLACK);
-        y+= fontSize + MARGIN;
-
-        windowRect.height = y - windowRect.y;
     }
-    void updateUI(Simulator *sim, Renderer *renderer)
+    bool isCursorInWindow()
     {
-        this->sim = sim;
-        this->renderer = renderer;
-        updateWindowRect();
+        Vector2 mousePos = GetMousePosition();
+        return mousePos.x >= windowPos.x && mousePos.x <= windowPos.x + windowSize.x && mousePos.y >= windowPos.y && mousePos.y <= windowPos.y + windowSize.y;
+    }
+    void renderUI()
+    {
+        rlImGuiBegin(); // starts the ImGui content mode. Make all ImGui calls after this
+
+
+        // Create a window called "My First Tool", with a menu bar.
+        ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Situation"))
+            {
+                ImGui::MenuItem("Recharger ce Situation");
+                if (ImGui::BeginMenu("Charger nouvelle Situation"))
+                {
+                    // ImGui::MenuItem("fish_hat.c");
+                    // ImGui::MenuItem("fish_hat.inl");
+                    // ImGui::MenuItem("fish_hat.h");
+                    for (string situation : situations)
+                    {
+                        if(ImGui::MenuItem(situation.c_str())){
+                            sim->LoadSituation(situation);
+                            sim->startExecutors();
+                        }
+                    }
+                    // ImGui::EndMenu();
+                    // {
+                    //     /* code */
+                    // }
+                    
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Simulation"))
+            {
+                ImGui::MenuItem("Pause");
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+        // ImGui::SetWindowPos(ImVec2(0, 0));
+        windowPos = ImGui::GetWindowPos();
+        windowSize = ImGui::GetWindowSize();
+
+        // // Edit a color stored as 4 floats
+        // ImGui::ColorEdit4("Color", color);
+
+        // // Generate samples and plot them
+        // float samples[100];
+        // for (int n = 0; n < 100; n++)
+        //     samples[n] = sinf(n * 0.2f + ImGui::GetTime() * 1.5f);
+        // ImGui::PlotLines("Samples", samples, 100);
+
+        // // Display contents in a scrolling region
+        // ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+        // ImGui::BeginChild("Scrolling");
+        // for (int n = 0; n < 50; n++)
+        //     ImGui::Text("%04d: Some text", n);
+        // ImGui::EndChild();
+        ImGui::End();
+        rlImGuiEnd(); // ends the ImGui content mode. Make all ImGui calls before this
+    }
+
+    void destroy()
+    {
+        rlImGuiShutdown();
     }
 };
+
+#endif

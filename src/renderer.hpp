@@ -1,12 +1,16 @@
 #ifndef RENDERER_H
 #define RENDERER_H
-#include "raylib.h"
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+
+#include "raylib.h"
+#include "raymath.h"
+
 #include "Entity.hpp"
 #include "simulator.hpp"
-#include "raymath.h"
+#include "UI.hpp"
+#include "gravitx.hpp"
 
 struct Polar3D
 {
@@ -21,15 +25,17 @@ private:
 #ifdef D3D
     Camera3D camera;
     Polar3D cameraPos;
-
 #endif
 
     Vector2 windowsSize = Vector2();
+    
+    AppComponents components;
+
 
 public:
     float scale = 1.0 / 2000.0f;
 
-    Renderer(/* args */);
+    Renderer(AppComponents components);
     ~Renderer();
 
     void setScale(float scale) { this->scale = scale; };
@@ -44,9 +50,9 @@ public:
     void mainLoop();
 };
 
-Renderer::Renderer()
+Renderer::Renderer(AppComponents components)
 {
-
+    this->components = components;
     cameraPos = {
         .d = 100,
         .theta = PI / 2,
@@ -83,7 +89,7 @@ void Renderer::updateCameraPos()
 void Renderer::update()
 {
 #ifdef D3D
-    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !components.ui->isCursorInWindow())
     {
         Vector2 mousePositionDelta = GetMouseDelta();
         cameraPos.phi -= mousePositionDelta.y / windowsSize.y * 2 * PI;

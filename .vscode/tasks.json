@@ -6,25 +6,7 @@
         {
             "label": "build debug",
             "type": "process",
-            "command": "./build.sh",
-            "args": [
-                // "PLATFORM=PLATFORM_DESKTOP",
-                // "BUILD_MODE=DEBUG",
-                // "PROJECT_NAME=gravitx",
-                // "OBJS=src/gravitx.cpp"
-            ],
-            "windows": {
-                "command": "./build.sh",
-                "args": [
-                    // "RAYLIB_PATH=f:/raylib/raylib",
-                    // "PROJECT_NAME=gravitx",
-                    // "OBJS=src/gravitx.cpp",
-                    // "BUILD_MODE=DEBUG"
-                ],
-            },
-            "linux": {
-                "command": "./build.linux.sh"
-            },
+            "command": "${workspaceFolder}/../../raylib/w64devkit/bin/make.exe",
             "group": {
                 "kind": "build",
                 "isDefault": true

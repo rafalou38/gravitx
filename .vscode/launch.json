@@ -31,7 +31,7 @@
             "linux": {
               "miDebuggerPath": "/usr/bin/gdb",
             },
-            // "preLaunchTask": "build debug"
+            "preLaunchTask": "build debug"
           },
           {
             "name": "Run",
