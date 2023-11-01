@@ -17,9 +17,8 @@ int main(void)
 
     Simulator sim = Simulator();
     components.sim = &sim;
-    sim.LoadSituation("earthManyMoon.xml");
+    sim.LoadSituation("earthMoon.xml");
     sim.startExecutors();
-
 
     int width = 800;
     int height = 450;
@@ -28,7 +27,7 @@ int main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    
+
     UI ui = UI(&sim);
     components.ui = &ui;
     Renderer renderer = Renderer(components);
@@ -60,6 +59,13 @@ int main(void)
 
         BeginDrawing();
 
+        // DrawText("0:0", 0 + width / 2, 0 + height / 2, 6, WHITE);
+        // DrawText("50:0", 50 + width / 2, 0 + height / 2, 6, WHITE);
+        // DrawText("0:50", 0 + width / 2, 50 + height / 2, 6, WHITE);
+        // DrawText("-50:0", -50 + width / 2, 0 + height / 2, 6, WHITE);
+        // DrawText("0:-50", 0 + width / 2, -50 + height / 2, 6, WHITE);
+
+
 #ifdef D3D
         renderer.render3D(&sim);
 #else
@@ -68,7 +74,6 @@ int main(void)
         ui.renderUI();
         EndDrawing();
     }
-
 
     ui.destroy();
     sim.stopExecutors();

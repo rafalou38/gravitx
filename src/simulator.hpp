@@ -42,7 +42,7 @@ public:
     float maxLines = MAX_LINES;
     float lineDistance = LINE_DISTANCE;
     // Seconds
-    float dt = 5.0f;
+    float dt = 1.0f;
     long double time = 0;
     std::vector<Entity *> entities;
     unordered_map<size_t, vector<Vector3> *> lines;

@@ -20,10 +20,8 @@ class UI
 private:
     Simulator *sim;
     Renderer *renderer;
-    char buf[256];
-    float f;
-    float color[4] = {0.0f, 0.0f, 1.0f, 1.0f};
     bool my_tool_active = true;
+    float dtSliderValue = -10;
 
     vector<string> situations;
 
@@ -63,9 +61,6 @@ public:
                 ImGui::MenuItem("Recharger ce Situation");
                 if (ImGui::BeginMenu("Charger nouvelle Situation"))
                 {
-                    // ImGui::MenuItem("fish_hat.c");
-                    // ImGui::MenuItem("fish_hat.inl");
-                    // ImGui::MenuItem("fish_hat.h");
                     for (string situation : situations)
                     {
                         if(ImGui::MenuItem(situation.c_str())){
@@ -73,11 +68,6 @@ public:
                             sim->startExecutors();
                         }
                     }
-                    // ImGui::EndMenu();
-                    // {
-                    //     /* code */
-                    // }
-                    
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -89,9 +79,17 @@ public:
             }
             ImGui::EndMainMenuBar();
         }
-        // ImGui::SetWindowPos(ImVec2(0, 0));
         windowPos = ImGui::GetWindowPos();
         windowSize = ImGui::GetWindowSize();
+
+        // ImGui::SetNextItemWidth(-1);
+        // ImGui::SliderAngle("phi", &(renderer->cameraPos.phi), 0, 2 * PI);
+        // ImGui::SliderAngle("theta", &(renderer->cameraPos.theta), 0, 2 * PI);
+
+
+        // ImGui::SetNextItemWidth(-1);
+        ImGui::SliderFloat("Dt", &dtSliderValue, -10, 10);
+        
 
         // // Edit a color stored as 4 floats
         // ImGui::ColorEdit4("Color", color);
