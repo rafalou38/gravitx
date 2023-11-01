@@ -61,14 +61,19 @@
 		"thread": "cpp",
 		"cinttypes": "cpp",
 		"barrier": "cpp",
-		"*.m": "cpp"
+		"*.m": "cpp",
+		"filesystem": "cpp"
 	},
 	"terminal.integrated.defaultProfile.windows": "w64devkit",
 	"terminal.integrated.profiles.windows": {
 		"w64devkit": {
 			"path": "${workspaceFolder}/../../raylib/w64devkit/bin/bash.exe",
 		}
-	}
+	},
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"*.cpp": "${capture}.hpp"
+	},
 	// "files.exclude": {
 	// 	"**/.git": true,
 	// 	"**/.svn": true,

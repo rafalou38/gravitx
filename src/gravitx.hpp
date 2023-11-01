@@ -5,7 +5,9 @@
 #include "renderer.hpp"
 #include "UI.hpp"
 
-
+class UI;
+class Renderer;
+class Simulator;
 struct AppComponents {
     UI *ui;
     Renderer *renderer;

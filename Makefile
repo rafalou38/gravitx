@@ -14,14 +14,13 @@ LIBDIR = lib
 IMGUI_DIR = $(LIBDIR)/imgui
 OBJDIR = obj
 
-SOURCES = $(SRCDIR)/gravitx.cpp $(LIBDIR)/tinyxml2.cpp $(wildcard $(IMGUI_DIR)/*.cpp) $(LIBDIR)/rlImGui/rlImGui.cpp
+SOURCES = $(wildcard $(SRCDIR)/*.cpp) $(LIBDIR)/tinyxml2.cpp $(wildcard $(IMGUI_DIR)/*.cpp) $(LIBDIR)/rlImGui/rlImGui.cpp
 HEADERS = $(wildcard $(SRCDIR)/*.hpp)
 OBJECTS = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.cpp=.o)))
 
 EXECUTABLE = gravitx
 
 export PATH := $(RAYLIB_PATH)\..\w64devkit\bin;$(PATH)
-
 
 all: $(EXECUTABLE)
 
@@ -30,7 +29,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(INCLUDE_PATHS) $(LDFLAGS)
 	@echo "$(EXECUTABLE) has been built."
 
-$(OBJDIR)/%.o: src/%.cpp $(HEADERS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
