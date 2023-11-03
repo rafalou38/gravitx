@@ -32,14 +32,15 @@ void Entity::setTexture(std::string filePath)
     this->textureLoaded = false;
 }
 
-Texture2D Entity::getTexture()
+Texture2D *Entity::getTexture()
 {
     assert(this->texturePath != "");
     if (!textureLoaded)
     {
         this->texture = LoadTexture(texturePath.c_str());
+        textureLoaded = true;
     }
-    return this->texture;
+    return &this->texture;
 }
 
 Model Entity::getModel()
@@ -49,7 +50,7 @@ Model Entity::getModel()
         drawMesh = GenMeshSphere(1, 32, 32);
         drawModel = LoadModelFromMesh(drawMesh);
         if(texturePath != ""){
-            SetMaterialTexture(&drawModel.materials[0], MATERIAL_MAP_DIFFUSE, getTexture());
+            SetMaterialTexture(&drawModel.materials[0], MATERIAL_MAP_DIFFUSE, *getTexture());
         }
         modelLoaded = true;
     }

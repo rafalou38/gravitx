@@ -43,7 +43,7 @@ public:
     void setRadius(float radius);
     void setColor(char *rawColor);
     void setTexture(std::string filePath);
-    Texture2D getTexture();
+    Texture2D *getTexture();
     Model getModel();
 };
 #endif

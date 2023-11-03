@@ -10,10 +10,12 @@
 #include "simulator.hpp"
 #include "renderer.hpp"
 #include "UI.hpp"
+#include "gravitx.hpp"
 
-UI::UI(Simulator *sim)
+UI::UI(AppComponents *app)
 {
-    this->sim = sim;
+    this->app = app;
+    app->sim->dt = exp(dtSliderValue);
     rlImGuiSetup(true);
 
     std::string path = "./situations";
@@ -22,6 +24,11 @@ UI::UI(Simulator *sim)
         if (entry.path().extension() == ".xml")
             situations.push_back(entry.path().filename().string());
     }
+}
+
+UI::~UI()
+{
+    rlImGuiShutdown();
 }
 bool UI::isCursorInWindow()
 {
@@ -39,15 +46,18 @@ void UI::renderUI()
     {
         if (ImGui::BeginMenu("Situation"))
         {
-            ImGui::MenuItem("Recharger ce Situation");
+            if(ImGui::MenuItem("Recharger", "r")){
+                app->sim->LoadSituation(app->sim->situationName);
+                app->sim->startExecutors();
+            }
             if (ImGui::BeginMenu("Charger nouvelle Situation"))
             {
                 for (string situation : situations)
                 {
                     if (ImGui::MenuItem(situation.c_str()))
                     {
-                        sim->LoadSituation(situation);
-                        sim->startExecutors();
+                        app->sim->LoadSituation(situation);
+                        app->sim->startExecutors();
                     }
                 }
                 ImGui::EndMenu();
@@ -56,7 +66,7 @@ void UI::renderUI()
         }
         if (ImGui::BeginMenu("Simulation"))
         {
-            ImGui::MenuItem("Pause");
+            ImGui::MenuItem("Pause", "p");
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -64,33 +74,64 @@ void UI::renderUI()
     windowPos = ImGui::GetWindowPos();
     windowSize = ImGui::GetWindowSize();
 
-    // ImGui::SetNextItemWidth(-1);
-    // ImGui::SliderAngle("phi", &(renderer->cameraPos.phi), 0, 2 * PI);
-    // ImGui::SliderAngle("theta", &(renderer->cameraPos.theta), 0, 2 * PI);
+    string label;
 
-    // ImGui::SetNextItemWidth(-1);
-    ImGui::SliderFloat("Dt", &dtSliderValue, -10, 10);
+    if (ImGui::CollapsingHeader("Simulator", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        label = "Dt: " + std::to_string(app->sim->dt) + "s";
+        ImGui::Text(label.c_str());
+        ImGui::SetNextItemWidth(-1);
+        if (ImGui::SliderFloat("Dt", &dtSliderValue, -10, 10))
+            app->sim->dt = exp(dtSliderValue);
 
-    // // Edit a color stored as 4 floats
-    // ImGui::ColorEdit4("Color", color);
+        label = "Trail size";
+        ImGui::Text(label.c_str());
+        ImGui::SetNextItemWidth(-1);
+        ImGui::SliderFloat("Trail size", &app->sim->maxLines, 0, 2000);
+    }
 
-    // // Generate samples and plot them
-    // float samples[100];
-    // for (int n = 0; n < 100; n++)
-    //     samples[n] = sinf(n * 0.2f + ImGui::GetTime() * 1.5f);
-    // ImGui::PlotLines("Samples", samples, 100);
+    if (ImGui::CollapsingHeader("Renderer"))
+    {
+        label = "phi = " + std::to_string(RAD2DEG * app->renderer->cameraPos.phi) + "°";
+        ImGui::Text(label.c_str());
+        label = "theta = " + std::to_string(RAD2DEG * app->renderer->cameraPos.theta) + "°";
+        ImGui::Text(label.c_str());
+        label = "scale: 1px = " + std::to_string(1/app->renderer->scale) + "km";
+        ImGui::Text(label.c_str());
 
-    // // Display contents in a scrolling region
-    // ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-    // ImGui::BeginChild("Scrolling");
-    // for (int n = 0; n < 50; n++)
-    //     ImGui::Text("%04d: Some text", n);
-    // ImGui::EndChild();
+        ImGui::SameLine();
+        if (ImGui::Button("Reset camera"))
+        {
+            app->renderer->scale = DEFAULT_SCALE;
+            app->renderer->resetCamera();
+            app->renderer->updateCameraPos();
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Situation", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        // ImGui::SetWindowFontScale(1.5f);
+        float textWidth = ImGui::CalcTextSize(app->sim->situationName.c_str()).x;
+        float padding = (windowSize.x - textWidth) * 0.5f;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + padding);
+        ImGui::Text(app->sim->situationName.c_str());
+        // ImGui::SetWindowFontScale(1);
+
+        float height = 64 * min(4.0f, (float)app->sim->entities.size());
+        if(ImGui::BeginListBox("##Entity origin list", ImVec2(-1, height))){
+            for (auto entity : app->sim->entities)
+            {
+                if(ImGui::ImageButton((void *)&(entity->getTexture()->id), ImVec2(64, 64))){
+                    app->sim->changeOrigin(entity);
+                }
+                ImGui::SameLine();
+                label = entity->label + (app->sim->origin == entity ? " (origin)" : "");
+                ImGui::Text(label.c_str());
+            }
+            ImGui::EndListBox();
+        }
+    }
+
     ImGui::End();
-    rlImGuiEnd(); // ends the ImGui content mode. Make all ImGui calls before this
-}
-
-void UI::destroy()
-{
-    rlImGuiShutdown();
+    rlImGuiEnd();
 }

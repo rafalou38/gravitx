@@ -11,6 +11,7 @@
 
 #include "simulator.hpp"
 #include "renderer.hpp"
+#include "gravitx.hpp"
 
 #define MARGIN 5
 
@@ -18,8 +19,7 @@ class Renderer;
 class UI
 {
 private:
-    Simulator *sim;
-    Renderer *renderer;
+    AppComponents *app;
     bool my_tool_active = true;
     float dtSliderValue = -10;
 
@@ -29,10 +29,10 @@ private:
     ImVec2 windowSize;
 
 public:
-    UI(Simulator *sim);
+    UI(AppComponents *app);
+    ~UI();
     bool isCursorInWindow();
     void renderUI();
-    void destroy();
 };
 
 #endif

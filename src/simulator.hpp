@@ -42,6 +42,8 @@ private:
     void computeInteraction(Entity *a, Entity *b);
     void computeLines(Entity *entity);
 public:
+    string situationName;
+
     float maxLines = MAX_LINES;
     float lineDistance = LINE_DISTANCE;
     // Seconds
@@ -57,6 +59,7 @@ public:
     void Clear();
     void LoadSituation(string name);
     void changeOrigin();
+    void changeOrigin(Entity *entity);
     void startExecutors();
     void stopExecutors();
 };

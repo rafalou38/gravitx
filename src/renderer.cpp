@@ -17,10 +17,7 @@ Renderer::Renderer(AppComponents components)
     this->components = components;
 
 #ifdef D3D
-    cameraPos = {
-        .d = 100,
-        .theta = PI / 2,
-        .phi = 0};
+    resetCamera();
     camera = {0};
 
     camera.target = (Vector3){0.0f, 0.0f, 0.0f}; // Camera looking at point
@@ -35,22 +32,26 @@ Renderer::Renderer(AppComponents components)
 Renderer::~Renderer()
 {
 }
+void Renderer::resetCamera(){
+    cameraPos = {
+        .d = 100,
+        .theta = DEG2RAD * -270,
+        .phi = DEG2RAD * 270};
+}
 
 #ifdef D3D
 void Renderer::updateCameraPos()
 {
+    cameraFlipped = fmod(abs(cameraPos.phi), 2 * PI) > PI;
+
     camera.position.x = cameraPos.d * cos(cameraPos.theta) * sin(cameraPos.phi);
     camera.position.y = cameraPos.d * cos(cameraPos.phi);
     camera.position.z = cameraPos.d * sin(cameraPos.theta) * sin(cameraPos.phi);
 
-    if (fmod(abs(cameraPos.phi), 2 * PI) > PI)
-    {
+    if (cameraFlipped)
         camera.up.y = -1;
-    }
     else
-    {
         camera.up.y = 1;
-    }
 }
 #endif
 
@@ -60,12 +61,15 @@ void Renderer::update()
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !components.ui->isCursorInWindow())
     {
         Vector2 mousePositionDelta = GetMouseDelta();
+        
+        if (cameraFlipped)
+            cameraPos.theta -= mousePositionDelta.x / windowsSize.x * 2 * PI;
+        else
+            cameraPos.theta += mousePositionDelta.x / windowsSize.x * 2 * PI;
+
         cameraPos.phi -= mousePositionDelta.y / windowsSize.y * 2 * PI;
-        cameraPos.theta += mousePositionDelta.x / windowsSize.x * 2 * PI;
         if (cameraPos.phi < 0)
             cameraPos.phi = 2 * PI + cameraPos.phi;
-
-        // cout << cameraPos.phi << " " << cameraPos.theta << endl;
 
         updateCameraPos();
     }
@@ -83,8 +87,6 @@ void Renderer::render3D(Simulator *sim)
         sim->origin->position.z};
     ClearBackground(BLACK);
     BeginMode3D(camera);
-
-
 
 #ifdef GIZMOS
     // DrawGrid(20, scale * 100000.0f);
@@ -180,9 +182,9 @@ void Renderer::render(Simulator *sim)
         else
         {
             auto texture = entity->getTexture();
-            float textureScale = (entity->radius * scale * 2.0f) / texture.width;
+            float textureScale = (entity->radius * scale * 2.0f) / texture->width;
             DrawTextureEx(
-                texture,
+                *texture,
                 {
                     (float)round((entity->position.x - center.x) * scale + windowsSize.x / 2) - entity->radius * scale,
                     (float)round((entity->position.y - center.y) * scale + windowsSize.y / 2) - entity->radius * scale,

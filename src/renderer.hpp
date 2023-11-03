@@ -20,6 +20,7 @@ class Renderer
 private:
 #ifdef D3D
     Camera3D camera;
+    bool cameraFlipped = false;
 #endif
 
     Vector2 windowsSize = Vector2();
@@ -28,7 +29,7 @@ private:
 
 public:
     Polar3D cameraPos;
-    float scale = 1.0 / 2000.0f;
+    float scale = DEFAULT_SCALE;
 
     Renderer(AppComponents components);
     ~Renderer();
@@ -42,6 +43,7 @@ public:
     void updateCameraPos();
     void render3D(Simulator *sim);
 #endif
+    void resetCamera();
 
     void render(Simulator *sim);
 

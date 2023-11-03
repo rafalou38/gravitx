@@ -27,8 +27,9 @@ int main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_MAXIMIZED);
 
-    UI ui = UI(&sim);
+    UI ui = UI(&components);
     components.ui = &ui;
     Renderer renderer = Renderer(components);
     components.renderer = &renderer;
@@ -75,7 +76,6 @@ int main(void)
         EndDrawing();
     }
 
-    ui.destroy();
     sim.stopExecutors();
     CloseWindow();
     return 0;

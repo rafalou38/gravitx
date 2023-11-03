@@ -3,7 +3,7 @@ RAYLIB_PATH = ../../raylib/raylib
 CXXFLAGS = -DPLATFORM_DESKTOP -static -std=c++20 -Wall
 
 
-CXXFLAGS += -g
+CXXFLAGS += -ggdb3
 # DEBUG = true
 
 INCLUDE_PATHS = -I. -IeUGxternal -I$(RAYLIB_PATH)/src -Ilib -Ilib/imgui -I$(RAYLIB_PATH)/src/external/glfw/include

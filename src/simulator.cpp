@@ -42,6 +42,10 @@ void Simulator::changeOrigin()
         }
     }
 }
+void Simulator::changeOrigin(Entity *entity)
+{
+    this->origin = entity;
+}
 
 void Simulator::computeLines(Entity *entity)
 {
@@ -88,8 +92,9 @@ void Simulator::stopExecutors()
     this->executorShouldStop.store(true);
     for (size_t i = 0; i < executorCount; i++)
     {
-        threads[i].join();
+        if(threads[i].joinable()) threads[i].join();
     }
+    executorCount = 0;
 }
 void Simulator::startExecutors()
 {
@@ -337,4 +342,6 @@ void Simulator::LoadSituation(string name)
         computeLines(entity);
         std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position.x << "\ty:" << entity->position.y << "\tVx:" << entity->velocity.x << "\tVy:" << entity->velocity.y << "\tM:" << entity->mass << endl;
     }
+
+    this->situationName = name;
 }
