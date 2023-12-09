@@ -78,7 +78,7 @@ void Simulator::computeLines(Entity *entity)
     float det = sqrt(det1 * det1 + det2 * det2 + det3 * det3);
     float angle = atan2(det, dot);
 
-    if (abs(angle) >= LINE_ANGLE)// || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
+    if (abs(angle) >= LINE_ANGLE || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
     {
         points->push_back(Vector3{
             (float)entity->position->x,

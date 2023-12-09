@@ -315,7 +315,32 @@ void Renderer::render3D(Simulator *sim)
 
     EndMode3D();
 
-    // cout << sim->iterCnt - prevCnt << endl;
+
+    vector<Vector2> labels = {};
+    for (Entity *entity : sim->entities)
+    {
+        pos = Vector3{
+            (float)((entity->position_freeze->x - center.x) * scale),
+            (float)((entity->position_freeze->y - center.y) * scale),
+            (float)((entity->position_freeze->z - center.z) * scale)};
+        Vector2 screenPos = GetWorldToScreen(pos, camera);
+
+        for (auto labelPos : labels)
+        {
+            if(abs(screenPos.y - labelPos.y) < 10 and abs(screenPos.x - labelPos.x) < 50)
+                screenPos.y += 10;
+        }
+        
+        labels.push_back(screenPos);
+
+
+        DrawText(
+            entity->label.c_str(),
+            (int)screenPos.x,
+            (int)screenPos.y + 12,
+            10,
+            WHITE);
+    }
 }
 #endif
 

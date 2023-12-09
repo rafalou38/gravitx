@@ -46,7 +46,8 @@ void UI::renderUI()
     {
         if (ImGui::BeginMenu("Situation"))
         {
-            if(ImGui::MenuItem("Recharger", "r")){
+            if (ImGui::MenuItem("Recharger", "r"))
+            {
                 app->sim->LoadSituation(app->sim->situationName);
                 app->sim->startExecutors();
             }
@@ -96,7 +97,7 @@ void UI::renderUI()
         ImGui::Text(label.c_str());
         label = "theta = " + std::to_string(RAD2DEG * app->renderer->cameraPos.theta) + "°";
         ImGui::Text(label.c_str());
-        label = "scale: 1px = " + std::to_string(1/app->renderer->scale) + "km";
+        label = "scale: 1px = " + std::to_string(1 / app->renderer->scale) + "km";
         ImGui::Text(label.c_str());
 
         ImGui::SameLine();
@@ -118,12 +119,15 @@ void UI::renderUI()
         // ImGui::SetWindowFontScale(1);
 
         float height = 64 * min(4.0f, (float)app->sim->entities.size());
-        if(ImGui::BeginListBox("##Entity origin list", ImVec2(-1, height))){
+        if (ImGui::BeginListBox("##Entity origin list", ImVec2(-1, height)))
+        {
             for (auto entity : app->sim->entities)
             {
-                if(ImGui::ImageButton((void *)&(entity->getTexture()->id), ImVec2(64, 64))){
-                    app->sim->changeOrigin(entity);
-                }
+                if (entity->texturePath != "")
+                    if (ImGui::ImageButton((void *)&(entity->getTexture()->id), ImVec2(64, 64)))
+                    {
+                        app->sim->changeOrigin(entity);
+                    }
                 ImGui::SameLine();
                 label = entity->label + (app->sim->origin == entity ? " (origin)" : "");
                 ImGui::Text(label.c_str());
