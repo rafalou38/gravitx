@@ -57,10 +57,11 @@ Model Entity::getModel()
     return drawModel;
 }
 
-void Entity::setPosition(float x, float y)
+void Entity::setPosition(float x, float y, float z)
 {
     this->position.x = x;
     this->position.y = y;
+    this->position.z = z;
 }
 void Entity::setMass(double mass)
 {
@@ -70,8 +71,9 @@ void Entity::setRadius(float radius)
 {
     this->radius = radius;
 }
-void Entity::setVelocity(float x, float y)
+void Entity::setVelocity(float x, float y, float z)
 {
     this->velocity.x = x;
     this->velocity.y = y;
+    this->velocity.z = z;
 }

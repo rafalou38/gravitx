@@ -23,11 +23,24 @@ int main(void)
     int width = 800;
     int height = 450;
 
-    SetTraceLogLevel(LOG_WARNING);
+    // SetTraceLogLevel(LOG_WARNING);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowState(FLAG_WINDOW_MAXIMIZED);
+    width = GetRenderWidth();
+    height = GetRenderHeight();
+
+    BeginDrawing();
+
+    ClearBackground(BLACK);
+    int text_w = MeasureText("GravitX", 200);
+    DrawText("GravitX", width / 2 - text_w / 2, height / 2 - 100, 200, WHITE);
+
+    text_w = MeasureText("Loading...", 50); 
+    DrawText("Loading...", width / 2 - text_w / 2, height / 2 + 100 + 50, 50, WHITE);
+
+    EndDrawing();
 
     UI ui = UI(&components);
     components.ui = &ui;
@@ -35,6 +48,9 @@ int main(void)
     components.renderer = &renderer;
     renderer.setWindowsSize(width, height);
 
+    
+
+    renderer.initialiseSkybox();
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -59,8 +75,8 @@ int main(void)
         renderer.update();
 
         BeginDrawing();
-
-        // DrawText("0:0", 0 + width / 2, 0 + height / 2, 6, WHITE);
+        
+        DrawText(to_string(GetFPS()).c_str(), 0, height-10, 6, WHITE);
         // DrawText("50:0", 50 + width / 2, 0 + height / 2, 6, WHITE);
         // DrawText("0:50", 0 + width / 2, 50 + height / 2, 6, WHITE);
         // DrawText("-50:0", -50 + width / 2, 0 + height / 2, 6, WHITE);

@@ -14,6 +14,8 @@
         color="#0000ff"
         texture="earth.png"
     >
+
+
         <!-- https://en.wikipedia.org/wiki/File:FullMoon2010.jpg -->
         <Entity
             name="Moon"
@@ -60,11 +62,19 @@
             color="#9e9e9e"
             texture="moon.png"
         />
+
+
+
+
+
+
+
+
         <Entity
             name="Moon"
             x="0"
             y="463300"
-            Vx="-1.082e+3"
+            Vz="-1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -75,7 +85,7 @@
             name="Moon"
             x="0"
             y="-463300"
-            Vx="1.082e+3"
+            Vz="1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -86,7 +96,7 @@
             name="Moon"
             y="0"
             x="463300"
-            Vy="1.082e+3"
+            Vz="1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -98,18 +108,25 @@
             name="Moon"
             y="0"
             x="-463300"
-            Vy="-1.082e+3"
+            Vz="-1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"
             color="#9e9e9e"
             texture="moon.png"
         />
+
+
+
+
+
+
+
         <Entity
             name="Moon"
             x="0"
             y="563300"
-            Vx="-1.082e+3"
+            Vz="1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -120,7 +137,7 @@
             name="Moon"
             x="0"
             y="-563300"
-            Vx="1.082e+3"
+            Vz="-1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -131,7 +148,7 @@
             name="Moon"
             y="0"
             x="563300"
-            Vy="1.082e+3"
+            Vz="-1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -143,18 +160,27 @@
             name="Moon"
             y="0"
             x="-563300"
-            Vy="-1.082e+3"
+            Vz="1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"
             color="#9e9e9e"
             texture="moon.png"
         />
+
+
+
+
+
+
+
+
+
         <Entity
             name="Moon"
             x="0"
             y="663300"
-            Vx="-1.082e+3"
+            Vx="1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -165,7 +191,7 @@
             name="Moon"
             x="0"
             y="-663300"
-            Vx="1.082e+3"
+            Vx="-1.082e+3"
             Vy="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -176,7 +202,7 @@
             name="Moon"
             y="0"
             x="663300"
-            Vy="1.082e+3"
+            Vy="-1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"
@@ -188,7 +214,7 @@
             name="Moon"
             y="0"
             x="-663300"
-            Vy="-1.082e+3"
+            Vy="1.082e+3"
             Vx="0"
             mass="7.342e+22"
             radius="1738.1"

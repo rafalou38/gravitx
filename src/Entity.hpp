@@ -37,8 +37,8 @@ public:
     Entity(std::string label);
     ~Entity();
     void setPosition(Vector3 position);
-    void setPosition(float x, float y);
-    void setVelocity(float x, float y);
+    void setPosition(float x, float y, float z=0.0f);
+    void setVelocity(float x, float y, float z=0.0f);
     void setMass(double mass);
     void setRadius(float radius);
     void setColor(char *rawColor);

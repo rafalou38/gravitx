@@ -21,6 +21,7 @@ private:
 #ifdef D3D
     Camera3D camera;
     bool cameraFlipped = false;
+    Model skybox;
 #endif
 
     Vector2 windowsSize = Vector2();
@@ -28,6 +29,8 @@ private:
     AppComponents components;
 
 public:
+    TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format);
+
     Polar3D cameraPos;
     float scale = DEFAULT_SCALE;
 
@@ -40,6 +43,7 @@ public:
     void update();
 
 #ifdef D3D
+    void initialiseSkybox();
     void updateCameraPos();
     void render3D(Simulator *sim);
 #endif

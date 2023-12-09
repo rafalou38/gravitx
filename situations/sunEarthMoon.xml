@@ -1,0 +1,53 @@
+<!-- Source: https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html -->
+<!-- 2023-11-03T20:13:44.436 	 -->
+<Situation
+    name="Terre Lune"
+    origin="Sun"
+>
+    <Entity
+        name="Sun"
+        x="0"
+        y="0"
+        mass="1.9885+30"
+        radius="696342"
+        color="#ffffff"
+        texture="sun.png"
+    >
+        <!-- https://en.m.wikipedia.org/wiki/File:Earth_Western_Hemisphere_transparent_background.png -->
+        <Entity
+            name="Earth"
+            x="1.123206E+08"
+            y="8.898997E+07"
+            z="3.857473E+07"
+            
+            Vx="8.924353E+03"
+            Vy="-7.445983E+05"
+            Vz="-1.387308E+02"
+
+            mass="5.9722e+24"
+            radius="6378.1"
+            color="#0000ff"
+            texture="earth.png"
+        >
+            <!-- https://en.wikipedia.org/wiki/File:FullMoon2010.jpg -->
+            <!-- <Entity
+                name="Moon"
+
+                x="-1.615819E+05"
+                y="3.180436E+05"
+                z="1.777265E+05"
+
+                Vx="-9.134849E+02"
+                Vy="-3.317294E+02"
+                Vz="-1.387308E+02"
+
+                mass="7.342e+22"
+                radius="1738.1"
+
+                color="#9e9e9e"
+                texture="moon.png"
+            /> -->
+            <!-- Vx = 1.022e+3 -->
+        </Entity>
+    </Entity>
+</Situation>

@@ -67,13 +67,19 @@
 	"terminal.integrated.defaultProfile.windows": "w64devkit",
 	"terminal.integrated.profiles.windows": {
 		"w64devkit": {
-			"path": "${workspaceFolder}/../../raylib/w64devkit/bin/bash.exe",
+			// "path": "${workspaceFolder}/../../raylib/w64devkit/bin/bash.exe",
+			"path": "${workspaceFolder}/../../raylib/w64devkit/w64devkit.exe",
 		}
 	},
 	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
 		"*.cpp": "${capture}.hpp"
 	},
+
+	"git.enabled": true,
+
+    // Path to the Git executable
+    
 	// "files.exclude": {
 	// 	"**/.git": true,
 	// 	"**/.svn": true,

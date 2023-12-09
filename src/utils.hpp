@@ -8,7 +8,6 @@ typedef struct Vector3l {
     long double z;                // Vector z component
 } Vector3l;
 
-
 // (Cumulative)
 typedef struct DetailedTime {
     unsigned int years;

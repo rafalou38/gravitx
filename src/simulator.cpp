@@ -60,8 +60,8 @@ void Simulator::computeLines(Entity *entity)
     {
         points = r->second;
     }
-    Vector3 lastPosition = {0, 0};
-    Vector3 lastVelocity = {0, 1};
+    Vector3 lastPosition = {0, 0, 0};
+    Vector3 lastVelocity = {0, 1, 0};
 
     if (points->size() > 0)
     {
@@ -72,18 +72,25 @@ void Simulator::computeLines(Entity *entity)
     while (points->size() > maxLines)
         points->erase(points->begin());
 
-    float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y;
-    float det = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
+    float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y + entity->velocity.z * lastVelocity.z;
+    float det1 = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
+    float det2 = entity->velocity.x * lastVelocity.z - entity->velocity.z * lastVelocity.x;
+    float det3 = entity->velocity.y * lastVelocity.z - entity->velocity.z * lastVelocity.y;
+    float det = sqrt(det1 * det1 + det2 * det2 + det3 * det3);
     float angle = atan2(det, dot);
 
     if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
     {
         points->push_back(Vector3{
             (float)entity->position.x,
-            (float)entity->position.y});
+            (float)entity->position.y,
+            (float)entity->position.z,
+            });
         previousVelocity[(size_t)entity] = Vector3{
             (float)entity->velocity.x,
-            (float)entity->velocity.y};
+            (float)entity->velocity.y,
+            (float)entity->velocity.z,
+            };
     }
 }
 
@@ -265,17 +272,24 @@ void Simulator::LoadSituation(string name)
 
             const char *rawX = elem->Attribute("x");
             const char *rawY = elem->Attribute("y");
+            const char *rawZ = elem->Attribute("z");
+
             const char *rawVx = elem->Attribute("Vx");
             const char *rawVy = elem->Attribute("Vy");
+            const char *rawVz = elem->Attribute("Vz");
+
             const char *rawMass = elem->Attribute("mass");
             const char *rawRadius = elem->Attribute("radius");
+
             const char *textureFile = elem->Attribute("texture");
             char *rawColor = (char *)elem->Attribute("color");
 
             double x = rawX != NULL ? atof(rawX) : 0;
             double y = rawY != NULL ? atof(rawY) : 0;
+            double z = rawZ != NULL ? atof(rawZ) : 0;
             double Vx = rawVx != NULL ? atof(rawVx) : 0;
             double Vy = rawVy != NULL ? atof(rawVy) : 0;
+            double Vz = rawVz != NULL ? atof(rawVz) : 0;
             double mass = rawMass != NULL ? atof(rawMass) : 0;
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
 
@@ -299,12 +313,17 @@ void Simulator::LoadSituation(string name)
             {
                 x += parentEntity->position.x;
                 y += parentEntity->position.y;
+                z += parentEntity->position.z;
+
+                Vx += parentEntity->velocity.x;
+                Vy += parentEntity->velocity.y;
+                Vz += parentEntity->velocity.z;
             }
 
-            entity->setPosition(x, y);
+            entity->setPosition(x, y, z);
             entity->setMass(mass);
             entity->setRadius(radius);
-            entity->setVelocity(Vx, Vy);
+            entity->setVelocity(Vx, Vy, Vz);
             entity->setColor(rawColor);
 
             XMLElement *child = elem->FirstChildElement("Entity");
