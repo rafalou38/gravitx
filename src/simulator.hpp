@@ -34,6 +34,9 @@ private:
     std::vector<Pair> pairs;
     size_t executorCount = 0;
     std::atomic<bool> executorShouldStop = false;
+    std::atomic<bool> paused = false;
+    std::atomic<bool> simulating = false;
+
     std::thread threads[MAX_THREADS + 1];
     std::unique_ptr<std::barrier<>> sync_point1;
     // std::unique_ptr<std::barrier<>> sync_point2;
@@ -49,6 +52,7 @@ public:
     // Seconds
     float dt = 1.0f;
     long double time = 0;
+    size_t iterCnt = 0;
     std::vector<Entity *> entities;
     unordered_map<size_t, vector<Vector3> *> lines;
     Entity *origin;
@@ -62,6 +66,8 @@ public:
     void changeOrigin(Entity *entity);
     void startExecutors();
     void stopExecutors();
+    void pause();
+    void resume();
 };
 
 #endif

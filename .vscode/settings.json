@@ -62,13 +62,14 @@
 		"cinttypes": "cpp",
 		"barrier": "cpp",
 		"*.m": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"iomanip": "cpp"
 	},
 	"terminal.integrated.defaultProfile.windows": "w64devkit",
 	"terminal.integrated.profiles.windows": {
 		"w64devkit": {
-			// "path": "${workspaceFolder}/../../raylib/w64devkit/bin/bash.exe",
-			"path": "${workspaceFolder}/../../raylib/w64devkit/w64devkit.exe",
+			"path": "${workspaceFolder}/../../raylib/w64devkit/bin/bash.exe",
+			// "path": "${workspaceFolder}/../../raylib/w64devkit/w64devkit.exe",
 		}
 	},
 	"explorer.fileNesting.enabled": true,

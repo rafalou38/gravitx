@@ -225,11 +225,13 @@ void Renderer::render3D(Simulator *sim)
     ClearBackground(BLACK);
     BeginMode3D(camera);
 
+#ifdef SKY_BOX
     rlDisableBackfaceCulling();
     rlDisableDepthMask();
     DrawModel(skybox, (Vector3){0, 0, 0}, 1.0f, WHITE);
     rlEnableBackfaceCulling();
     rlEnableDepthMask();
+#endif
 
 #ifdef GIZMOS
     // DrawGrid(20, scale * 100000.0f);
@@ -238,6 +240,8 @@ void Renderer::render3D(Simulator *sim)
     DrawLine3D({0, 0, 0}, {0, 0, 100}, ColorAlpha(BLUE, 0.3));
 #endif
 
+    sim->pause();
+    prevCnt = sim->iterCnt;
     Vector3l center = {
         sim->origin->position.x,
         // 0,
@@ -302,6 +306,9 @@ void Renderer::render3D(Simulator *sim)
     }
 
     EndMode3D();
+
+    cout << sim->iterCnt - prevCnt << endl;
+    sim->resume();
 }
 #endif
 

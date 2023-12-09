@@ -28,6 +28,7 @@ int main(void)
     InitWindow(width, height, "GravitX");
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowState(FLAG_WINDOW_MAXIMIZED);
+    SetTargetFPS(60);
     width = GetRenderWidth();
     height = GetRenderHeight();
 
@@ -49,8 +50,9 @@ int main(void)
     renderer.setWindowsSize(width, height);
 
     
-
+#ifdef SKY_BOX
     renderer.initialiseSkybox();
+#endif
     // Main game loop
     while (!WindowShouldClose())
     {
@@ -76,7 +78,6 @@ int main(void)
 
         BeginDrawing();
         
-        DrawText(to_string(GetFPS()).c_str(), 0, height-10, 6, WHITE);
         // DrawText("50:0", 50 + width / 2, 0 + height / 2, 6, WHITE);
         // DrawText("0:50", 0 + width / 2, 50 + height / 2, 6, WHITE);
         // DrawText("-50:0", -50 + width / 2, 0 + height / 2, 6, WHITE);
@@ -89,6 +90,7 @@ int main(void)
         renderer.render(&sim);
 #endif
         ui.renderUI();
+        DrawText(to_string(GetFPS()).c_str(), 0, height-10, 6, WHITE);
         EndDrawing();
     }
 

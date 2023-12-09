@@ -31,3 +31,7 @@
 *.out
 *.app
 gravitx
+
+
+# huge files (even for lfs)
+*.hdr

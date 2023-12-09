@@ -28,6 +28,9 @@ private:
 
     AppComponents components;
 
+    size_t prevCnt = 0;
+
+
 public:
     TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format);
 

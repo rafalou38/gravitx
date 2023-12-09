@@ -17,7 +17,6 @@
 
 #include "simulator.hpp"
 
-
 using namespace std;
 using namespace tinyxml2;
 
@@ -85,12 +84,12 @@ void Simulator::computeLines(Entity *entity)
             (float)entity->position.x,
             (float)entity->position.y,
             (float)entity->position.z,
-            });
+        });
         previousVelocity[(size_t)entity] = Vector3{
             (float)entity->velocity.x,
             (float)entity->velocity.y,
             (float)entity->velocity.z,
-            };
+        };
     }
 }
 
@@ -99,10 +98,27 @@ void Simulator::stopExecutors()
     this->executorShouldStop.store(true);
     for (size_t i = 0; i < executorCount; i++)
     {
-        if(threads[i].joinable()) threads[i].join();
+        if (threads[i].joinable())
+            threads[i].join();
     }
     executorCount = 0;
 }
+
+void Simulator::pause()
+{
+    this->paused.store(true, std::memory_order_release);
+    this->paused.notify_all();
+    if(this->simulating.load(std::memory_order_relaxed)){
+        this->simulating.wait(true, std::memory_order_release);
+    }
+}
+
+void Simulator::resume()
+{
+    this->paused.store(false, std::memory_order_release);
+    this->paused.notify_all();
+}
+
 void Simulator::startExecutors()
 {
     for (size_t i = 0; i < this->entities.size(); i++)
@@ -164,8 +180,17 @@ void Simulator::startExecutors()
 }
 void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pairsRangeEnd, size_t entityRangeStart, size_t entityRangeEnd)
 {
+    simulating = true;
     while (1)
     {
+        if (executorShouldStop.load())
+            break;
+        if (paused.load())
+        {
+            simulating = false;
+            paused.wait(true);
+        }
+
         for (size_t i = pairsRangeStart; i <= pairsRangeEnd; i++)
         {
             Entity *a = pairs[i].a;
@@ -199,6 +224,8 @@ void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pair
             cout << "SIMULATOR: executor " << executor_id << " stopped" << endl;
             return;
         }
+
+        iterCnt++;
     }
 }
 void Simulator::computeInteraction(Entity *a, Entity *b)
@@ -230,7 +257,8 @@ void Simulator::computeInteraction(Entity *a, Entity *b)
 void Simulator::Clear()
 {
     this->stopExecutors();
-    for(auto line : lines){
+    for (auto line : lines)
+    {
         delete line.second;
     }
     lines.clear();
@@ -334,7 +362,7 @@ void Simulator::LoadSituation(string name)
         };
         return;
     };
-    
+
     string filePath = "situations/" + name;
     // Check if the file exists
     if (!FileExists(filePath.c_str()))
@@ -357,7 +385,7 @@ void Simulator::LoadSituation(string name)
     std::cout << "Loaded " << this->entities.size() << " entities" << endl;
     for (auto entity : this->entities)
     {
-        // Reconfigure lines 
+        // Reconfigure lines
         computeLines(entity);
         std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position.x << "\ty:" << entity->position.y << "\tVx:" << entity->velocity.x << "\tVy:" << entity->velocity.y << "\tM:" << entity->mass << endl;
     }
