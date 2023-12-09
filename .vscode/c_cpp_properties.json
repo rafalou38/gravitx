@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/../../raylib/raylib/src/**",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lib/boost/**"
             ],
             "defines": [
                 "_DEBUG",

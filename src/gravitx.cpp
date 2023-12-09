@@ -17,7 +17,7 @@ int main(void)
 
     Simulator sim = Simulator();
     components.sim = &sim;
-    sim.LoadSituation("earthMoon.xml");
+    sim.LoadSituation("sunEarthMoon.xml");
     sim.startExecutors();
 
     int width = 800;

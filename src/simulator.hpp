@@ -34,12 +34,9 @@ private:
     std::vector<Pair> pairs;
     size_t executorCount = 0;
     std::atomic<bool> executorShouldStop = false;
-    std::atomic<bool> paused = false;
-    std::atomic<bool> simulating = false;
 
     std::thread threads[MAX_THREADS + 1];
     std::unique_ptr<std::barrier<>> sync_point1;
-    // std::unique_ptr<std::barrier<>> sync_point2;
 
     void executor(size_t executor_id, size_t pairsRangeStart, size_t pairsRangeEnd, size_t entityRangeStart, size_t entityRangeEnd);
     void computeInteraction(Entity *a, Entity *b);
@@ -50,7 +47,7 @@ public:
     float maxLines = MAX_LINES;
     float lineDistance = LINE_DISTANCE;
     // Seconds
-    float dt = 1.0f;
+    float dt = 0.0f;
     long double time = 0;
     size_t iterCnt = 0;
     std::vector<Entity *> entities;
@@ -66,8 +63,6 @@ public:
     void changeOrigin(Entity *entity);
     void startExecutors();
     void stopExecutors();
-    void pause();
-    void resume();
 };
 
 #endif

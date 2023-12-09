@@ -240,22 +240,26 @@ void Renderer::render3D(Simulator *sim)
     DrawLine3D({0, 0, 0}, {0, 0, 100}, ColorAlpha(BLUE, 0.3));
 #endif
 
-    sim->pause();
-    prevCnt = sim->iterCnt;
+    // prevCnt = sim->iterCnt;
+    // for (Entity *entity : sim->entities)
+    // {
+    //     entity->swap();
+    // }
+
     Vector3l center = {
-        sim->origin->position.x,
+        sim->origin->position_freeze->x,
         // 0,
-        sim->origin->position.y,
+        sim->origin->position_freeze->y,
         // 0,
-        sim->origin->position.z};
+        sim->origin->position_freeze->z};
     Vector3 pos;
 
     for (Entity *entity : sim->entities)
     {
         pos = Vector3{
-            (float)((entity->position.x - center.x) * scale),
-            (float)((entity->position.y - center.y) * scale),
-            (float)((entity->position.z - center.z) * scale)};
+            (float)((entity->position_freeze->x - center.x) * scale),
+            (float)((entity->position_freeze->y - center.y) * scale),
+            (float)((entity->position_freeze->z - center.z) * scale)};
 
         auto points = sim->lines.find((size_t)entity)->second;
         if (points->size() >= 2)
@@ -302,21 +306,24 @@ void Renderer::render3D(Simulator *sim)
             DrawLine3D(startPos, endPos, color);
         }
 
+        pos = Vector3{
+            (float)((entity->position_freeze->x - center.x) * scale),
+            (float)((entity->position_freeze->y - center.y) * scale),
+            (float)((entity->position_freeze->z - center.z) * scale)};
         DrawModel(entity->getModel(), pos, max(0.1f, entity->radius * scale), WHITE); // 20
     }
 
     EndMode3D();
 
-    cout << sim->iterCnt - prevCnt << endl;
-    sim->resume();
+    // cout << sim->iterCnt - prevCnt << endl;
 }
 #endif
 
 void Renderer::render(Simulator *sim)
 {
     Vector3l center = {
-        sim->origin->position.x,
-        sim->origin->position.y,
+        sim->origin->position->x,
+        sim->origin->position->y,
         0};
     ClearBackground(BLACK);
     for (Entity *entity : sim->entities)
@@ -324,8 +331,8 @@ void Renderer::render(Simulator *sim)
         if (entity->texturePath == "")
         {
             DrawCircle(
-                round((entity->position.x - center.x) * scale + windowsSize.x / 2),
-                round((entity->position.y - center.y) * scale + windowsSize.y / 2),
+                round((entity->position->x - center.x) * scale + windowsSize.x / 2),
+                round((entity->position->y - center.y) * scale + windowsSize.y / 2),
                 entity->radius * scale,
                 entity->color);
         }
@@ -336,8 +343,8 @@ void Renderer::render(Simulator *sim)
             DrawTextureEx(
                 *texture,
                 {
-                    (float)round((entity->position.x - center.x) * scale + windowsSize.x / 2) - entity->radius * scale,
-                    (float)round((entity->position.y - center.y) * scale + windowsSize.y / 2) - entity->radius * scale,
+                    (float)round((entity->position->x - center.x) * scale + windowsSize.x / 2) - entity->radius * scale,
+                    (float)round((entity->position->y - center.y) * scale + windowsSize.y / 2) - entity->radius * scale,
                 },
                 0, textureScale, WHITE);
         }
@@ -359,8 +366,8 @@ void Renderer::render(Simulator *sim)
             DrawLine(
                 round((points->back().x - center.x) * scale + windowsSize.x / 2),
                 round((points->back().y - center.y) * scale + windowsSize.y / 2),
-                round((entity->position.x - center.x) * scale + windowsSize.x / 2),
-                round((entity->position.y - center.y) * scale + windowsSize.y / 2),
+                round((entity->position->x - center.x) * scale + windowsSize.x / 2),
+                round((entity->position->y - center.y) * scale + windowsSize.y / 2),
                 color);
         }
     }

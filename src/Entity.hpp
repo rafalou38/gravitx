@@ -27,11 +27,24 @@ public:
     Color color;
 
     // In km
-    Vector3l position;
+    Vector3l *position;
     // In m/s
-    Vector3l velocity;
+    Vector3l *velocity;
     // In m/s^2
-    Vector3l acceleration;
+    Vector3l *acceleration;
+
+    Vector3l *position_freeze;
+    Vector3l *velocity_freeze;
+    Vector3l *acceleration_freeze;
+
+    // Toggle between both
+    Vector3l position_a;
+    Vector3l velocity_a;
+    Vector3l acceleration_a;
+
+    Vector3l position_b;
+    Vector3l velocity_b;
+    Vector3l acceleration_b;
 
     Entity *origin;
     Entity(std::string label);
@@ -45,5 +58,7 @@ public:
     void setTexture(std::string filePath);
     Texture2D *getTexture();
     Model getModel();
+
+    void swap();
 };
 #endif

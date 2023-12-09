@@ -71,24 +71,24 @@ void Simulator::computeLines(Entity *entity)
     while (points->size() > maxLines)
         points->erase(points->begin());
 
-    float dot = entity->velocity.x * lastVelocity.x + entity->velocity.y * lastVelocity.y + entity->velocity.z * lastVelocity.z;
-    float det1 = entity->velocity.x * lastVelocity.y - entity->velocity.y * lastVelocity.x;
-    float det2 = entity->velocity.x * lastVelocity.z - entity->velocity.z * lastVelocity.x;
-    float det3 = entity->velocity.y * lastVelocity.z - entity->velocity.z * lastVelocity.y;
+    float dot = entity->velocity->x * lastVelocity.x + entity->velocity->y * lastVelocity.y + entity->velocity->z * lastVelocity.z;
+    float det1 = entity->velocity->x * lastVelocity.y - entity->velocity->y * lastVelocity.x;
+    float det2 = entity->velocity->x * lastVelocity.z - entity->velocity->z * lastVelocity.x;
+    float det3 = entity->velocity->y * lastVelocity.z - entity->velocity->z * lastVelocity.y;
     float det = sqrt(det1 * det1 + det2 * det2 + det3 * det3);
     float angle = atan2(det, dot);
 
-    if (abs(angle) >= LINE_ANGLE || abs(entity->position.x - lastPosition.x) > lineDistance || abs(entity->position.y - lastPosition.y) > lineDistance)
+    if (abs(angle) >= LINE_ANGLE)// || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
     {
         points->push_back(Vector3{
-            (float)entity->position.x,
-            (float)entity->position.y,
-            (float)entity->position.z,
+            (float)entity->position->x,
+            (float)entity->position->y,
+            (float)entity->position->z,
         });
         previousVelocity[(size_t)entity] = Vector3{
-            (float)entity->velocity.x,
-            (float)entity->velocity.y,
-            (float)entity->velocity.z,
+            (float)entity->velocity->x,
+            (float)entity->velocity->y,
+            (float)entity->velocity->z,
         };
     }
 }
@@ -102,21 +102,6 @@ void Simulator::stopExecutors()
             threads[i].join();
     }
     executorCount = 0;
-}
-
-void Simulator::pause()
-{
-    this->paused.store(true, std::memory_order_release);
-    this->paused.notify_all();
-    if(this->simulating.load(std::memory_order_relaxed)){
-        this->simulating.wait(true, std::memory_order_release);
-    }
-}
-
-void Simulator::resume()
-{
-    this->paused.store(false, std::memory_order_release);
-    this->paused.notify_all();
 }
 
 void Simulator::startExecutors()
@@ -180,16 +165,10 @@ void Simulator::startExecutors()
 }
 void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pairsRangeEnd, size_t entityRangeStart, size_t entityRangeEnd)
 {
-    simulating = true;
     while (1)
     {
         if (executorShouldStop.load())
             break;
-        if (paused.load())
-        {
-            simulating = false;
-            paused.wait(true);
-        }
 
         for (size_t i = pairsRangeStart; i <= pairsRangeEnd; i++)
         {
@@ -206,17 +185,17 @@ void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pair
         {
             Entity *entity = entities[i];
             computeLines(entity);
-            entity->velocity.x += entity->acceleration.x * dt;
-            entity->velocity.y += entity->acceleration.y * dt;
-            entity->velocity.z += entity->acceleration.z * dt;
+            entity->velocity->x += entity->acceleration->x * dt;
+            entity->velocity->y += entity->acceleration->y * dt;
+            entity->velocity->z += entity->acceleration->z * dt;
 
-            entity->position.x += entity->velocity.x * dt * pow(10, -3); // m to km
-            entity->position.y += entity->velocity.y * dt * pow(10, -3);
-            entity->position.z += entity->velocity.z * dt * pow(10, -3);
+            entity->position->x += entity->velocity->x * dt * pow(10, -3); // m to km
+            entity->position->y += entity->velocity->y * dt * pow(10, -3);
+            entity->position->z += entity->velocity->z * dt * pow(10, -3);
 
-            entity->acceleration.x = 0;
-            entity->acceleration.y = 0;
-            entity->acceleration.z = 0;
+            entity->acceleration->x = 0;
+            entity->acceleration->y = 0;
+            entity->acceleration->z = 0;
         }
 
         if (executorShouldStop.load(std::memory_order_relaxed))
@@ -231,9 +210,9 @@ void Simulator::executor(size_t executor_id, size_t pairsRangeStart, size_t pair
 void Simulator::computeInteraction(Entity *a, Entity *b)
 {
     Vector3l AB = {
-        (b->position.x - a->position.x) * pow(10, 3),
-        (b->position.y - a->position.y) * pow(10, 3),
-        (b->position.z - a->position.z) * pow(10, 3)};
+        (b->position->x - a->position->x) * pow(10, 3),
+        (b->position->y - a->position->y) * pow(10, 3),
+        (b->position->z - a->position->z) * pow(10, 3)};
 
     long double dist2 = (AB.x * AB.x + AB.y * AB.y + AB.z * AB.z); // m^2
     long double dist = sqrtl(dist2);
@@ -245,13 +224,13 @@ void Simulator::computeInteraction(Entity *a, Entity *b)
     AB.z /= dist;
 
     // m/s^2
-    a->acceleration.x += AB.x * k * b->mass;
-    a->acceleration.y += AB.y * k * b->mass;
-    a->acceleration.z += AB.z * k * b->mass;
+    a->acceleration->x += AB.x * k * b->mass;
+    a->acceleration->y += AB.y * k * b->mass;
+    a->acceleration->z += AB.z * k * b->mass;
 
-    b->acceleration.x += AB.x * -k * a->mass;
-    b->acceleration.y += AB.y * -k * a->mass;
-    b->acceleration.z += AB.z * -k * a->mass;
+    b->acceleration->x += AB.x * -k * a->mass;
+    b->acceleration->y += AB.y * -k * a->mass;
+    b->acceleration->z += AB.z * -k * a->mass;
 }
 
 void Simulator::Clear()
@@ -339,13 +318,13 @@ void Simulator::LoadSituation(string name)
             strcat(rawColor, "ff");
             if (parentEntity != NULL)
             {
-                x += parentEntity->position.x;
-                y += parentEntity->position.y;
-                z += parentEntity->position.z;
+                x += parentEntity->position->x;
+                y += parentEntity->position->y;
+                z += parentEntity->position->z;
 
-                Vx += parentEntity->velocity.x;
-                Vy += parentEntity->velocity.y;
-                Vz += parentEntity->velocity.z;
+                Vx += parentEntity->velocity->x;
+                Vy += parentEntity->velocity->y;
+                Vz += parentEntity->velocity->z;
             }
 
             entity->setPosition(x, y, z);
@@ -387,7 +366,7 @@ void Simulator::LoadSituation(string name)
     {
         // Reconfigure lines
         computeLines(entity);
-        std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position.x << "\ty:" << entity->position.y << "\tVx:" << entity->velocity.x << "\tVy:" << entity->velocity.y << "\tM:" << entity->mass << endl;
+        std::cout << "\t\033[1m" << entity->label << "\033[0m\tx:" << entity->position->x << "\ty:" << entity->position->y << "\tVx:" << entity->velocity->x << "\tVy:" << entity->velocity->y << "\tM:" << entity->mass << endl;
     }
 
     this->situationName = name;
