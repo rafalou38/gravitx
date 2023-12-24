@@ -12,5 +12,7 @@
 #define GIZMOS
 // #define SKY_BOX
 
+#define AU_TO_M 149600000
+
 
 #endif
