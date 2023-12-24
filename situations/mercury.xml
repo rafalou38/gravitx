@@ -1,0 +1,27 @@
+<!-- 2023-11-03T20:13:44.436 	 -->
+<Situation
+    name="Terre Lune"
+    origin="Sun"
+    units="au"
+>
+    <Entity name="Sun"
+        x="0"
+        y="0"
+        mass="1.9885E+30"
+        radius="696342"
+        color="#ffffff"
+        texture="sun.png"
+    >
+        <Entity name="Mercury"
+            x="-0.163983260361"
+            y="-0.391129801522"
+            z="-0.191945708603"
+            Vx="0.0206725788"
+            Vy="-0.006795673793"
+            Vz="-0.00577288818"
+            mass="3.3011E+23"
+            radius="24397"
+            color="#1a1a1a"
+        ></Entity>
+    </Entity>
+</Situation>

@@ -78,7 +78,7 @@ void Simulator::computeLines(Entity *entity)
     float det = sqrt(det1 * det1 + det2 * det2 + det3 * det3);
     float angle = atan2(det, dot);
 
-    if (abs(angle) >= LINE_ANGLE || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
+    if (abs(angle) >= LINE_ANGLE ) // || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
     {
         points->push_back(Vector3{
             (float)entity->position->x,
@@ -310,15 +310,6 @@ void Simulator::LoadSituation(string name)
                 Vx = Vx * 149597870 * pow(10,3) / (60*60*24);
                 Vy = Vy * 149597870 * pow(10,3) / (60*60*24);
                 Vz = Vz * 149597870 * pow(10,3) / (60*60*24);
-                
-                cout << entityLabel << endl;
-                cout << "\tx=" << x << endl;
-                cout << "\ty=" << y << endl;
-                cout << "\tz=" << z << endl;
-
-                cout << "\tVx=" << Vx << endl;
-                cout << "\tVy=" << Vy << endl;
-                cout << "\tVz=" << Vz << endl;
             }
 
 
