@@ -92,13 +92,13 @@ TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, in
     unsigned int rbo = rlLoadTextureDepth(size, size, true);
     cubemap.id = rlLoadTextureCubemap(0, size, format);
 
-    unsigned int fbo = rlLoadFramebuffer(size, size);
+    unsigned int fbo = rlLoadFramebuffer();
     rlFramebufferAttach(fbo, rbo, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_RENDERBUFFER, 0);
     rlFramebufferAttach(fbo, cubemap.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_CUBEMAP_POSITIVE_X, 0);
 
     // Check if framebuffer is complete with attachments (valid)
     if (rlFramebufferComplete(fbo))
-        TraceLog(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", fbo);
+        TraceLog(LOG_WARNING, "FBO: [ID %i] Framebuffer object created successfully", fbo);
     //------------------------------------------------------------------------------------------
 
     // STEP 2: Draw to framebuffer

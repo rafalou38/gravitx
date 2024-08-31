@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include <iostream>
 #include <vector>
-#include "entity.hpp"
+#include "Entity.hpp"
 #include "simulator.hpp"
 #include "renderer.hpp"
 #include "UI.hpp"
@@ -23,7 +23,7 @@ int main(void)
     int width = 800;
     int height = 450;
 
-    // SetTraceLogLevel(LOG_WARNING);
+    SetTraceLogLevel(LOG_WARNING);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
     SetWindowState(FLAG_WINDOW_RESIZABLE);

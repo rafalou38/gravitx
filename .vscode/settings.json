@@ -78,6 +78,7 @@
 	},
 
 	"git.enabled": true,
+	"makefile.configureOnOpen": true,
 
     // Path to the Git executable
     

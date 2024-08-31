@@ -1,16 +1,16 @@
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
-CXX = ../../raylib/w64devkit/bin/g++
-RAYLIB_PATH = ../../raylib/raylib
-CXXFLAGS = -DPLATFORM_DESKTOP -static -std=c++20 -Wall
+CXX = g++
+RAYLIB_PATH = /home/rafael/src/lib/raylib
+CXXFLAGS = -DPLATFORM_DESKTOP -std=c++20 -Wall
 
 
 CXXFLAGS += -ggdb3
 # DEBUG = true
 
-INCLUDE_PATHS = -I. -IeUGxternal -I$(RAYLIB_PATH)/src -Ilib -Ilib/imgui -I$(RAYLIB_PATH)/src/external/glfw/include
-LDFLAGS = -L. -L$(RAYLIB_RELEASE_PATH) -L$(RAYLIB_PATH)/src -lraylib -lopengl32 -lgdi32 -lwinmm
+INCLUDE_PATHS = -I. -Ilib/imgui -Ilib/rlImGui -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external -I/usr/local/include -I$(RAYLIB_PATH)/src/external/glfw/include # -I/usr/lib/x86_64-linux-gnu -I/usr/lib -I/usr/local/include -I$(RAYLIB_PATH)/src -Ilib  -I$(RAYLIB_PATH)/src/external/glfw/include
+LDFLAGS = -L. -L$(RAYLIB_PATH)/src -L$(RAYLIB_PATH)/src -L/usr/local/lib -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -latomic # -L/usr/lib/x86_64-linux-gnu -L/usr/lib -L/usr/local/lib  -lm -lpthread -ldl -lrt -lX11
 
 SRCDIR = src
 LIBDIR = lib
@@ -23,7 +23,7 @@ OBJECTS = $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.cpp=.o)))
 
 EXECUTABLE = gravitx
 
-export PATH := $(RAYLIB_PATH)\..\w64devkit\bin;$(PATH)
+# export PATH := $(RAYLIB_PATH)\..\w64devkit\bin;$(PATH)
 
 all: $(EXECUTABLE)
 
@@ -33,23 +33,19 @@ $(EXECUTABLE): $(OBJECTS)
 # @echo "$(EXECUTABLE) has been built."
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)
-# @echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
 $(OBJDIR)/%.o: lib/%.cpp
-# @echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
 $(OBJDIR)/%.o: lib/imgui/%.cpp
-# @echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
 $(OBJDIR)/%.o: lib/rlImGui/%.cpp
-# @echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
 
 clean:
-# @echo "Cleaning up..."
+	@echo "Cleaning up..."
 	rm -f $(OBJECTS) $(EXECUTABLE)
 # @echo "Cleaned."
 

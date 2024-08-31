@@ -5,8 +5,8 @@
 #include <iostream>
 #include <filesystem>
 
-#include "../lib/imgui/imgui.h"
-#include "../lib/rlImGui/rlImGui.h"
+#include "imgui.h"
+#include "rlImGui.h"
 #include "raylib.h"
 
 #include "simulator.hpp"
