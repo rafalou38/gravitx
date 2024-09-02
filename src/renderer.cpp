@@ -165,7 +165,7 @@ TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, in
     // Reset viewport dimensions to default
     rlViewport(0, 0, windowsSize.x, windowsSize.y);
     // rlViewport(0, 0, rlGetFramebufferWidth(), rlGetFramebufferHeight());
-    rlEnableBackfaceCulling();
+    // rlEnableBackfaceCulling();
     //------------------------------------------------------------------------------------------
 
     cubemap.width = size;
@@ -236,7 +236,7 @@ void Renderer::render3D(Simulator *sim)
         rlDisableBackfaceCulling();
         rlDisableDepthMask();
         DrawModel(skybox, (Vector3){0, 0, 0}, 1.0f, WHITE);
-        rlEnableBackfaceCulling();
+        // rlEnableBackfaceCulling();
         rlEnableDepthMask();
     }
 #endif
