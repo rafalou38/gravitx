@@ -1,6 +1,7 @@
 # gravitx
 Enhanced version of my previous Gravity, writen in c++.
 
+![Preview of the program](http://rf38.ddns.net/static/gravitx.gif)
 
 
 ## Usage
