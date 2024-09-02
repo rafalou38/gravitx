@@ -36,8 +36,10 @@ Renderer::Renderer(AppComponents components)
 #endif
 }
 
-void Renderer::initialiseSkybox()
+void Renderer::initialiseSkybox(string path, int factor)
 {
+    if (factor == 0)
+        return;
     // Load skybox model
     Mesh cube = GenMeshCube(1.0f, 1.0f, 1.0f);
     skybox = LoadModelFromMesh(cube);
@@ -67,7 +69,7 @@ void Renderer::initialiseSkybox()
 
     Texture2D panorama;
 
-    TextCopy(skyboxFileName, "situations/textures/starmap_8k.hdr");
+    TextCopy(skyboxFileName, path.c_str());
 
     // Load HDR panorama (sphere) texture
     panorama = LoadTexture(skyboxFileName);
@@ -77,8 +79,10 @@ void Renderer::initialiseSkybox()
     // NOTE 2: It seems on some Android devices WebGL, fbo does not properly support a FLOAT-based attachment,
     // despite texture can be successfully created.. so using PIXELFORMAT_UNCOMPRESSED_R8G8B8A8 instead of PIXELFORMAT_UNCOMPRESSED_R32G32B32A32
     // 10:1k 11:2k 12:4k 13:8k 14:16k
-    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = GenTextureCubemap(shdrCubemap, panorama, pow(2, 12), PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = GenTextureCubemap(shdrCubemap, panorama, pow(2, factor), PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     UnloadTexture(panorama); // Texture not required anymore, cubemap already generated
+
+    skybox_loaded = true;
 }
 
 TextureCubemap Renderer::GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format)
@@ -226,11 +230,14 @@ void Renderer::render3D(Simulator *sim)
     BeginMode3D(camera);
 
 #ifdef SKY_BOX
-    rlDisableBackfaceCulling();
-    rlDisableDepthMask();
-    DrawModel(skybox, (Vector3){0, 0, 0}, 1.0f, WHITE);
-    rlEnableBackfaceCulling();
-    rlEnableDepthMask();
+    if (skybox_loaded)
+    {
+        rlDisableBackfaceCulling();
+        rlDisableDepthMask();
+        DrawModel(skybox, (Vector3){0, 0, 0}, 1.0f, WHITE);
+        rlEnableBackfaceCulling();
+        rlEnableDepthMask();
+    }
 #endif
 
 #ifdef GIZMOS
@@ -315,7 +322,6 @@ void Renderer::render3D(Simulator *sim)
 
     EndMode3D();
 
-
     vector<Vector2> labels = {};
     for (Entity *entity : sim->entities)
     {
@@ -327,12 +333,11 @@ void Renderer::render3D(Simulator *sim)
 
         for (auto labelPos : labels)
         {
-            if(abs(screenPos.y - labelPos.y) < 10 and abs(screenPos.x - labelPos.x) < 50)
+            if (abs(screenPos.y - labelPos.y) < 10 and abs(screenPos.x - labelPos.x) < 50)
                 screenPos.y += 10;
         }
-        
-        labels.push_back(screenPos);
 
+        labels.push_back(screenPos);
 
         DrawText(
             entity->label.c_str(),

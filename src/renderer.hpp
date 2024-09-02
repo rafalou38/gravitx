@@ -21,6 +21,7 @@ private:
 #ifdef D3D
     Camera3D camera;
     bool cameraFlipped = false;
+    bool skybox_loaded = false;
     Model skybox;
 #endif
 
@@ -42,11 +43,10 @@ public:
 
     void setScale(float scale) { this->scale = scale; };
     void setWindowsSize(float x, float y) { this->windowsSize = {x, y}; };
-
     void update();
 
 #ifdef D3D
-    void initialiseSkybox();
+    void initialiseSkybox(string path, int factor);
     void updateCameraPos();
     void render3D(Simulator *sim);
 #endif
