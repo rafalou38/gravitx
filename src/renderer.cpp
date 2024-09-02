@@ -6,6 +6,7 @@
 #include "rlgl.h"
 #include "raymath.h"
 
+#include "consts.hpp"
 #include "Entity.hpp"
 #include "simulator.hpp"
 #include "UI.hpp"
@@ -317,7 +318,14 @@ void Renderer::render3D(Simulator *sim)
             (float)((entity->position_freeze->x - center.x) * scale),
             (float)((entity->position_freeze->y - center.y) * scale),
             (float)((entity->position_freeze->z - center.z) * scale)};
-        DrawModel(entity->getModel(), pos, max(0.1f, entity->radius * scale), WHITE); // 20
+        if (entity->texturePath != "")
+        {
+            DrawModel(entity->getModel(), pos, max(0.1f, entity->radius * scale), WHITE); // 20
+        }
+        else
+        {
+            DrawModel(entity->getModel(), pos, max(0.1f, entity->radius * scale), entity->color);
+        }
     }
 
     EndMode3D();
@@ -333,8 +341,8 @@ void Renderer::render3D(Simulator *sim)
 
         for (auto labelPos : labels)
         {
-            if (abs(screenPos.y - labelPos.y) < 10 and abs(screenPos.x - labelPos.x) < 50)
-                screenPos.y += 10;
+            if (abs(screenPos.y - labelPos.y) < ENTITY_LABEL_SIZE +2 and abs(screenPos.x - labelPos.x) < 50)
+                screenPos.y += ENTITY_LABEL_SIZE;
         }
 
         labels.push_back(screenPos);
@@ -342,8 +350,8 @@ void Renderer::render3D(Simulator *sim)
         DrawText(
             entity->label.c_str(),
             (int)screenPos.x,
-            (int)screenPos.y + 12,
-            10,
+            (int)screenPos.y + ENTITY_LABEL_SIZE + 2,
+            ENTITY_LABEL_SIZE,
             WHITE);
     }
 }

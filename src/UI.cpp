@@ -82,13 +82,13 @@ void UI::renderUI()
         label = "Dt: " + std::to_string(app->sim->dt) + "s";
         ImGui::Text(label.c_str());
         ImGui::SetNextItemWidth(-1);
-        if (ImGui::SliderFloat("Dt", &dtSliderValue, -10, 10))
+        if (ImGui::SliderFloat("Dt", &dtSliderValue, -10, 15))
             app->sim->dt = exp(dtSliderValue);
 
         label = "Trail size";
         ImGui::Text(label.c_str());
         ImGui::SetNextItemWidth(-1);
-        ImGui::SliderFloat("Trail size", &app->sim->maxLines, 0, 2000);
+        ImGui::SliderFloat("Trail size", &app->sim->maxLines, 0, 4000);
     }
 
     if (ImGui::CollapsingHeader("Renderer"))
