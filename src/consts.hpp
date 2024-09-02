@@ -12,7 +12,7 @@
 #define TEXTURES
 #define D3D
 #define GIZMOS
-// #define SKY_BOX
+#define SKY_BOX
 
 #define AU_TO_M 149600000
 
