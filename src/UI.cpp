@@ -28,7 +28,9 @@ UI::UI(AppComponents *app)
 
 UI::~UI()
 {
-    rlImGuiShutdown();
+    // rlImGuiShutdown();
+    // Removed, causing segfaults.
+    // Anyways, it only happens when the app is closed so... Who cares ?
 }
 bool UI::isCursorInWindow()
 {

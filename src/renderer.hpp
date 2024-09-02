@@ -21,7 +21,6 @@ private:
 #ifdef D3D
     Camera3D camera;
     bool cameraFlipped = false;
-    bool skybox_loaded = false;
     Model skybox;
 #endif
 
@@ -37,6 +36,7 @@ public:
 
     Polar3D cameraPos;
     float scale = DEFAULT_SCALE;
+    bool skybox_loaded = false;
 
     Renderer(AppComponents components);
     ~Renderer();

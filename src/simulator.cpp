@@ -78,7 +78,7 @@ void Simulator::computeLines(Entity *entity)
     float det = sqrt(det1 * det1 + det2 * det2 + det3 * det3);
     float angle = atan2(det, dot);
 
-    if (abs(angle) >= LINE_ANGLE ) // || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
+    if (abs(angle) >= LINE_ANGLE) // || abs(entity->position->x - lastPosition.x) > lineDistance || abs(entity->position->y - lastPosition.y) > lineDistance)
     {
         points->push_back(Vector3{
             (float)entity->position->x,
@@ -302,16 +302,16 @@ void Simulator::LoadSituation(string name)
             double radius = rawRadius != NULL ? atof(rawRadius) : 0;
 
             // Conversions
-            if(useAU){
+            if (useAU)
+            {
                 x *= 149597870;
                 y *= 149597870;
                 z *= 149597870;
 
-                Vx = Vx * 149597870 * pow(10,3) / (60*60*24);
-                Vy = Vy * 149597870 * pow(10,3) / (60*60*24);
-                Vz = Vz * 149597870 * pow(10,3) / (60*60*24);
+                Vx = Vx * 149597870 * pow(10, 3) / (60 * 60 * 24);
+                Vy = Vy * 149597870 * pow(10, 3) / (60 * 60 * 24);
+                Vz = Vz * 149597870 * pow(10, 3) / (60 * 60 * 24);
             }
-
 
 #ifdef TEXTURES
             if (textureFile != NULL)
@@ -372,7 +372,14 @@ void Simulator::LoadSituation(string name)
     }
     XMLElement *root = doc.FirstChildElement();
     originName = root->Attribute("origin");
-    useAU = strcmpi(root->Attribute("units"), "au") == 0;
+    string units = root->Attribute("units");
+
+    useAU = !units.empty() && strcasecmp(units.c_str(), "au") == 0;
+
+    if (useAU)
+        cout << "SU: AU" << endl;
+    else
+        cout << "SU: MGS" << endl;
 
     traverse(root, NULL);
 

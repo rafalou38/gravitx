@@ -19,6 +19,56 @@ void show_help()
     cout << "-> SKY_BOX DISABLED in this build" << endl;
 #endif
 }
+
+enum LoadPhase
+{
+    LOAD_WINDOW,
+    LOAD_ENTITIES, // SIM
+    LOAD_UI,
+    LOAD_RENDERER,
+    LOAD_SKYBOX,
+    DONE,
+};
+
+void show_progress(LoadPhase phase, int width, int height)
+{
+    BeginDrawing();
+
+    ClearBackground(BLACK);
+    int text_w = MeasureText("GravitX", 200);
+    DrawText("GravitX", width / 2 - text_w / 2, height / 2 - 100, 200, WHITE);
+
+    string sub_text = "Loading ";
+    switch (phase)
+    {
+    case LOAD_WINDOW:
+        sub_text += "Window...";
+        break;
+    case LOAD_ENTITIES:
+        sub_text += "Entities...";
+        break;
+    case LOAD_UI:
+        sub_text += "UI...";
+        break;
+    case LOAD_RENDERER:
+        sub_text += "Renderer...";
+        break;
+    case LOAD_SKYBOX:
+        sub_text += "Skybox...";
+        break;
+    case DONE:
+        sub_text += "Done";
+        break;
+    }
+    text_w = MeasureText(sub_text.c_str(), 50);
+    DrawText(sub_text.c_str(), width / 2 - text_w / 2, height / 2 + 100 + 50, 50, WHITE);
+    EndDrawing();
+
+    cout << sub_text << endl;
+    // string tmp;
+    // cin >> tmp;
+}
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -63,87 +113,120 @@ int main(int argc, char *argv[])
         cout << "[!] Skybox path (--skybox) not specified, skybox will not be displayed" << endl;
 #endif
 
-    AppComponents components;
-
-    Simulator sim = Simulator();
-    components.sim = &sim;
-    sim.LoadSituation("sunEarthMoon.xml");
-    sim.startExecutors();
-
     int width = 800;
     int height = 450;
 
     SetTraceLogLevel(LOG_WARNING);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(width, height, "GravitX");
+
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowState(FLAG_WINDOW_MAXIMIZED);
     SetTargetFPS(60);
     width = GetRenderWidth();
     height = GetRenderHeight();
 
-    BeginDrawing();
+    enum LoadPhase current_load_phase = LOAD_WINDOW;
 
-    ClearBackground(BLACK);
-    int text_w = MeasureText("GravitX", 200);
-    DrawText("GravitX", width / 2 - text_w / 2, height / 2 - 100, 200, WHITE);
+    AppComponents components;
+    UI *ui = NULL;
+    Renderer *renderer = NULL;
+    Simulator *sim = NULL;
 
-    text_w = MeasureText("Loading...", 50);
-    DrawText("Loading...", width / 2 - text_w / 2, height / 2 + 100 + 50, 50, WHITE);
-
-    EndDrawing();
-
-    UI ui = UI(&components);
-    components.ui = &ui;
-    Renderer renderer = Renderer(components);
-    components.renderer = &renderer;
-    renderer.setWindowsSize(width, height);
-
-#ifdef SKY_BOX
-    if (!skybox_path.empty() and sky_factor != 0)
-        renderer.initialiseSkybox(skybox_path, sky_factor);
-#endif
-    // Main game loop
     while (!WindowShouldClose())
     {
+        if (current_load_phase != DONE)
+            show_progress(current_load_phase, width, height);
         if (IsWindowResized())
         {
             width = GetRenderWidth();
             height = GetRenderHeight();
-            renderer.setWindowsSize(width, height);
         }
 
-        float scroll = GetMouseWheelMove();
-        if (scroll != 0 && !ui.isCursorInWindow())
+        if (current_load_phase == LOAD_WINDOW)
         {
-            if (scroll > 0)
-                renderer.setScale(renderer.scale * 1.1);
-            else
-                renderer.setScale(renderer.scale * 0.9);
+            current_load_phase = LOAD_ENTITIES;
         }
-        if (GetKeyPressed() == KEY_O && !ui.isCursorInWindow())
-            sim.changeOrigin();
+        else if (current_load_phase == LOAD_ENTITIES)
+        {
+            sim = new Simulator();
+            if (sim == NULL)
+            {
+                std::cerr << "Failed to create Simulator" << std::endl;
+                return 1;
+            }
+            components.sim = sim;
+            sim->LoadSituation("solarSystemAu.xml");
+            sim->startExecutors();
+            current_load_phase = LOAD_UI;
+        }
+        else if (current_load_phase == LOAD_UI)
+        {
+            ui = new UI(&components);
+            if (ui == NULL)
+            {
+                std::cerr << "Failed to create UI" << std::endl;
+                return 1;
+            }
+            components.ui = ui;
+            current_load_phase = LOAD_RENDERER;
+        }
+        else if (current_load_phase == LOAD_RENDERER)
+        {
+            renderer = new Renderer(components);
+            if (renderer == NULL)
+            {
+                std::cerr << "Failed to create Renderer" << std::endl;
+                return 1;
+            }
+            components.renderer = renderer;
+            renderer->setWindowsSize(width, height);
+            current_load_phase = LOAD_SKYBOX;
+        }
+        else if (current_load_phase == LOAD_SKYBOX)
+        {
+#ifdef SKY_BOX
+            if (!skybox_path.empty() and sky_factor != 0 and !renderer->skybox_loaded)
+                renderer->initialiseSkybox(skybox_path, sky_factor);
+#endif
+            current_load_phase = DONE;
+        }
+        else if (current_load_phase == DONE)
+        {
+            BeginDrawing();
 
-        renderer.update();
+            // INPUT
 
-        BeginDrawing();
+            renderer->setWindowsSize(width, height);
+            float scroll = GetMouseWheelMove();
+            if (scroll != 0 && !ui->isCursorInWindow())
+            {
+                if (scroll > 0)
+                    renderer->setScale(renderer->scale * 1.1);
+                else
+                    renderer->setScale(renderer->scale * 0.9);
+            }
+            if (GetKeyPressed() == KEY_O && !ui->isCursorInWindow())
+                sim->changeOrigin();
 
-        // DrawText("50:0", 50 + width / 2, 0 + height / 2, 6, WHITE);
-        // DrawText("0:50", 0 + width / 2, 50 + height / 2, 6, WHITE);
-        // DrawText("-50:0", -50 + width / 2, 0 + height / 2, 6, WHITE);
-        // DrawText("0:-50", 0 + width / 2, -50 + height / 2, 6, WHITE);
+            renderer->update();
 
 #ifdef D3D
-        renderer.render3D(&sim);
+            renderer->render3D(sim);
 #else
-        renderer.render(&sim);
+            renderer->render(sim);
 #endif
-        ui.renderUI();
-        DrawText(to_string(GetFPS()).c_str(), 0, height - 10, 6, WHITE);
-        EndDrawing();
+            ui->renderUI();
+            DrawText(to_string(GetFPS()).c_str(), 0, height - 10, 6, WHITE);
+
+            EndDrawing();
+        }
     }
 
-    sim.stopExecutors();
+    if (sim != NULL)
+    {
+        sim->stopExecutors();
+    }
     CloseWindow();
     return 0;
 }
